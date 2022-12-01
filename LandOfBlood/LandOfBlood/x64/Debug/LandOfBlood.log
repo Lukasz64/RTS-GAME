@@ -1,0 +1,10 @@
+﻿  GameWorld.cpp
+F:\Visual Studio\Visual Studio 2017\Studia\LandOfBlood\LandOfBlood\GameWorld.cpp(22,29): warning C4267: "+=": konwersja z "size_t" do "int", możliwa utrata danych
+F:\Visual Studio\Visual Studio 2017\Studia\LandOfBlood\LandOfBlood\GameWorld.cpp(76,58): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+F:\Visual Studio\Visual Studio 2017\Studia\LandOfBlood\LandOfBlood\GameWorld.cpp(87,21): warning C4267: "return": konwersja z "size_t" do "int", możliwa utrata danych
+F:\Visual Studio\Visual Studio 2017\Studia\LandOfBlood\LandOfBlood\GameWorld.cpp(94,21): warning C4267: "return": konwersja z "size_t" do "int", możliwa utrata danych
+F:\Visual Studio\Visual Studio 2017\Studia\LandOfBlood\LandOfBlood\GameWorld.cpp(100,21): warning C4267: "return": konwersja z "size_t" do "int", możliwa utrata danych
+  LandOfBlood.cpp
+  Generowanie kodu...
+F:\Visual Studio\Visual Studio 2017\Studia\LandOfBlood\LandOfBlood\GameWorld.cpp(169): warning C4715: "Player::setBase”: niewszystkie ścieżki kodu zwracają wartość
+  LandOfBlood.vcxproj -> F:\Visual Studio\Visual Studio 2017\Studia\LandOfBlood\x64\Debug\LandOfBlood.exe
