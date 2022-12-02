@@ -1,0 +1,1 @@
+recv(sock,buff,size,flas) -> flags NOBLOCK ! MSG_WAITALL

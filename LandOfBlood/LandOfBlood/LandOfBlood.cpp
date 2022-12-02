@@ -15,12 +15,16 @@ using namespace std;
 
 int main()
 {
-    GameWorld game(32345);
+    GameWorld game(845945);
     game.PrintMap();
 
     game.JoinPlayer("Luki");
     game.JoinPlayer("Adid");
     game.LeftPlayer("Adid");
+    game.JoinPlayer("Adid");
+    game.SetPlayerBase("Adid",Vect2(1,0));
+    game.LeftPlayer("Adid");
+    game.LeftPlayer("Luki");
     game.PrintPlayes();
     while (true)
     {

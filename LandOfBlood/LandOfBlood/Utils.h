@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 int random(int min, int max);
 

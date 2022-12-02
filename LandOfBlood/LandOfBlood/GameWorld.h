@@ -1,5 +1,7 @@
 #pragma once
 #include "TerrainChunk.h"
+#include <string>
+
 const int WorldSize = 12;
 const int MaxPlayers = 8;
 

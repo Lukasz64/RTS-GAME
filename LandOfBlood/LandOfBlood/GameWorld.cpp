@@ -145,7 +145,7 @@ bool GameWorld::LeftPlayer(string nick)
 bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
     int player = FindPlayer(nick);
     if (player != -1) {
-        players[player].setBase(players, chunks[terrLoc.X][terrLoc.Y]);
+        return players[player].setBase(players, chunks[terrLoc.X][terrLoc.Y]);
         //[TODO] end this
     }
     // player not found
@@ -159,13 +159,14 @@ bool Player::setBase(Player * players, TerrainChunk & selectedBase) {
     //start field cannot be the Water
     if (selectedBase.Type == Water)
         return false;
-    //check tahat field is free
+    //check that field is free
     for (size_t i = 0; i < MaxPlayers; i++)
         if ((&players[i] != this) && (&selectedBase == players[i].base))
             return false;
  
     //set player base
     base = &selectedBase;
+    return true;
 }
 
 Player::Player(string name)
