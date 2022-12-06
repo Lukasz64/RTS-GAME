@@ -12,20 +12,43 @@
 using namespace std;
 
 
-
 int main()
 {
-    GameWorld game(845945);
+    GameWorld game(123434);
     game.PrintMap();
 
     game.JoinPlayer("Luki");
-    game.JoinPlayer("Adid");
-    game.LeftPlayer("Adid");
-    game.JoinPlayer("Adid");
-    game.SetPlayerBase("Adid",Vect2(1,0));
-    game.LeftPlayer("Adid");
-    game.LeftPlayer("Luki");
+    game.JoinPlayer("Mati");
+    game.LeftPlayer("Mati");
+    game.JoinPlayer("Mati");
+    game.SetPlayerBase("Mati",Vect2(2,0));
+    game.LeftPlayer("Mati");
+    //game.LeftPlayer("Luki");
+    game.SetPlayerBase("Luki", Vect2(3, 0));
+    game.SendUints("Luki", 26, Vect2(8, 0));
+
+    game.JoinPlayer("Mati");
     game.PrintPlayes();
+
+   
+    game.GameTick();
+    cout << game.SendUints("Mati",50,Vect2(8,0)) << endl;
+    game.GameTick();
+    game.GameTick();
+
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+    game.GameTick();
+
+
+
     while (true)
     {
         int x, y;

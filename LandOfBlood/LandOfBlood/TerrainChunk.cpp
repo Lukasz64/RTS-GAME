@@ -3,14 +3,22 @@
 #include <sstream>
 #include <random>
 #include <ctime>
+#include <list>
 
+#include "GameWorld.h"
+#include "Utils.h"
 #include "TerrainChunk.h"
+using namespace std;
+
+
+const int DataMul = 100000;
+
 
 TerrainChunk::TerrainChunk(ChunkType type, Vect2 loc)
 {
     Type = type;
     Loc = loc;
-    int DataMul = 100000;
+   
     // gerate Terrain resources
     int ReachRate = random(500, 1000) * DataMul;
     int MediumRate = random(50, 90) * DataMul;
@@ -57,3 +65,191 @@ TerrainChunk::TerrainChunk(ChunkType type, Vect2 loc)
         break;
     }
 }
+
+void TerrainChunk::GenResoucesAsPlayerBase(Player* owner) {
+    TerrainOwner = owner;
+    StcjonaryUnit = Unit(owner, 100);
+    NaturalRes = Resource(
+        1000,       //wood 
+        1000,       //stone 
+        0,          //gold
+        100000      //food
+    );
+}
+
+
+bool TerrainChunk::ToUpadte() {
+    bool lastState = needUpade;
+    needUpade = false;
+    return lastState;
+}
+
+void TerrainChunk::OnModifed(){
+    needUpade = true;
+}
+
+bool operator==(const Unit& lhs, const Unit& rhs)
+{
+    return Unit::compare(lhs, rhs);
+};
+// ------------------------------------ Unit ------------------------------------
+
+
+bool Unit::Add(Unit& unit) {
+    if (unit.owner == owner) {
+        count += unit.count;
+        return true;
+    }
+    return false;
+}
+
+//units
+Unit::Unit(Player* own, int cnt)
+{
+    owner = own;
+    count = cnt;
+    currentLoc = own->getBaseLoc();
+}
+bool Unit::isOwner(Player* pl) {
+    return (owner == pl);
+}
+
+void Unit::GoNewLocation(GameWorld& world, Vect2 newLoc) {
+
+    TerrainChunk* cuurrentChunk = world.getChunkForUpadte(currentLoc.X, currentLoc.Y);
+    TerrainChunk* newChunk = world.getChunkForUpadte(newLoc.X, newLoc.Y);
+
+    cuurrentChunk->MovingUnits.remove(*this);
+    
+
+    updated = true;
+    currentLoc = newLoc;
+    
+    if (newChunk->Type == Water)
+        delay=2;
+    
+
+    //reach destynation
+    if ((currentLoc.CompareValues(destynationLoc))) {
+        // add units
+        if (newChunk->StcjonaryUnit.Add(*this)) {
+            world.ReportEvent("Units reach destination" + newChunk->Loc.ToString(), owner);
+        }
+        else { // explore or fight
+            //exploration
+            if (newChunk->StcjonaryUnit.owner == nullptr) {
+                if (newChunk->Type == Water) {
+                    //for now is banned
+                    world.ReportEvent("Units cannot explored woter and back" + newChunk->Loc.ToString(), owner);
+                    destynationLoc = owner->getBaseLoc();
+                }
+                else {
+                    newChunk->TerrainOwner = owner;
+                    newChunk->StcjonaryUnit.owner = owner;
+                    newChunk->StcjonaryUnit.count = count;
+                    world.ReportEvent("Units successfully explored terrain" + newChunk->Loc.ToString(), owner);
+                    return;
+                }
+            }
+            else {// fight
+                //succes
+                if (newChunk->StcjonaryUnit.count * 2 < count) {
+                    world.ReportEvent("Your territory " + newChunk->Loc.ToString() + ", has been defeated by " + owner->nick, newChunk->TerrainOwner);
+                    world.ReportEvent("Units take over terrain" + newChunk->Loc.ToString(), owner);
+
+                    newChunk->TerrainOwner = owner;
+                    newChunk->StcjonaryUnit.owner = owner;
+                    //takig unis from other player(max half)
+                    newChunk->StcjonaryUnit.count = count + random(0, newChunk->StcjonaryUnit.count / 2);
+                    return;
+                }
+                else { // defend
+                    destynationLoc = owner->getBaseLoc();
+                    count = random(1, count / 2);
+
+                    world.ReportEvent("Your territory defended" + newChunk->Loc.ToString() + ", on attack by " + owner->nick, newChunk->TerrainOwner);
+                    world.ReportEvent("Units fail take over terrain" + newChunk->Loc.ToString(), owner);
+                }
+            }
+
+            // 
+        }
+    }
+    newChunk->MovingUnits.push_back(*this);
+}
+void Unit::ProcessUnit(GameWorld& world) {
+    //this unit has been upadted this ture
+    if (updated)
+        return;
+    
+    if (owner == nullptr) {
+        ReportError("Unint move that don't have owner");
+        return;
+    }
+    //don't nesesry any move
+    if (currentLoc.CompareValues(destynationLoc))
+        return;
+    //delay on move
+    if (delay > 0) {
+        TerrainChunk* cuurrentChunk = world.getChunkForUpadte(currentLoc.X, currentLoc.Y);
+        //becouse our instace is copy we need modfi this in list
+        cuurrentChunk->MovingUnits.remove(*this);
+        delay--;
+        cuurrentChunk->MovingUnits.push_back(*this);
+
+        return;
+    }
+
+    if (currentLoc.X < destynationLoc.X) {
+        GoNewLocation(world, Vect2(currentLoc.X + 1, currentLoc.Y));
+        return;
+    }
+    if (currentLoc.X > destynationLoc.X) {
+        GoNewLocation(world, Vect2(currentLoc.X - 1, currentLoc.Y));
+        return;
+    }
+
+    if (currentLoc.Y < destynationLoc.Y){
+        GoNewLocation(world, Vect2(currentLoc.X, currentLoc.Y + 1));
+        return;
+    }
+    if (currentLoc.Y > destynationLoc.Y) {
+        GoNewLocation(world, Vect2(currentLoc.X, currentLoc.Y - 1));
+        return;
+    }
+}
+void Unit::ProcessUints(Vect2 terrLoc, GameWorld& world) {
+    for (Unit n : world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits)
+        n.ProcessUnit(world);
+}
+void Unit::UnlockUpadte(Vect2 terrLoc, GameWorld& world) {
+    list<Unit> units = world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits;
+
+    for (auto i = units.begin(); i != units.end(); ++i)
+        i->updated = false;
+
+    world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits = units;
+
+    TerrainChunk* r = world.getChunkForUpadte(terrLoc.X, terrLoc.Y, (units.size() != 0));
+    r->MovingUnits = units;
+    //if (units.size() == 0)
+      //  r->ToUpadte();//reduce modfication if not nesesry
+
+
+    return;
+}
+
+bool Unit::sendUnits(int c, Vect2 dest,Unit * outUnit) {
+    if (count >= c) {
+        *outUnit = Unit(owner, c);
+        
+        outUnit->currentLoc = currentLoc;
+        outUnit->destynationLoc = dest;
+        count -= c;
+        return true;
+    }
+    return false;
+}
+
+
+

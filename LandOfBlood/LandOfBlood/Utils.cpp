@@ -48,3 +48,18 @@ const string colorize(int font, int back, int style) {
 
     return str.str();
 }
+
+void ReportError(string errmsg) {
+    cout << colorize(RED, BLACK, 1) << "[ERROR]:" << colorize(RED, BLACK, 1) << errmsg << colorize(NC) << endl;
+}
+
+
+bool Vect2::CompareValues(Vect2& b) {
+    return (b.X == X && b.Y == Y);
+}
+
+std::string Vect2::ToString() {
+    stringstream str;
+    str << "[" << X << "," << Y << "]";
+    return str.str();
+}
