@@ -14,13 +14,16 @@ class GameWorld
         TerrainChunk chunks[WorldSize][WorldSize];
         Player       players[MaxPlayers];
         int          day = 0;
+        
+        int          worldOwner = -1;
+        std::string  name = "";
 
         int FindPlayer(std::string nick);
         int FindFreePlayerSlot();
         int FindActiveConnectedPlayer();
 
     public:
-        GameWorld(unsigned int seed = 12);
+        GameWorld(std::string worldName,unsigned int seed = 12);
         ~GameWorld();
 
         TerrainChunk  getChunk(int x, int y);

@@ -70,13 +70,11 @@ void GameWorld::PrintPlayes() {
 
 
 
-GameWorld::GameWorld(unsigned int seed)
+GameWorld::GameWorld(std::string worldName,unsigned int seed)
 {
+    name = worldName;
     //gen world
     srand(seed);
-    COLORS cc[] = {
-        YELLOW,BLUE,GREEN,BLACK
-    };
     for (size_t x = 0; x < WorldSize; x++)
         for (size_t y = 0; y < WorldSize; y++) {
             ChunkType chunk = getRng();
@@ -136,6 +134,12 @@ bool GameWorld::LeftPlayer(string nick)
     int palyerSlot = FindPlayer(nick);
     if (palyerSlot != -1) {
         if (players[palyerSlot].isConnected) {
+            
+            if (worldOwner == palyerSlot) {
+
+            }
+
+
             //[TODO]* fix change world owner
 
             //if player was not reigstred only connected

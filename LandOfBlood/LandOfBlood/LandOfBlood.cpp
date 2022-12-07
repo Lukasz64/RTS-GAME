@@ -21,7 +21,7 @@ TODO list
         + Supoort selecting olny changed terrains
         + Units send interraction provided(from base)
         - Units send intteraction from terrain to another
-        - Proper fight handling(cannot atttack basa of antoher player if any toher terory exist)
+        - Proper fight handling(cannot atttack base of antoher player if any toher terory exist)
         - Proper room owner hdling when player dysconnects
         - Calaculating units move cost
         - Calcualating all units food cost by day
