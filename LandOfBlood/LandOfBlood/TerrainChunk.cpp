@@ -250,6 +250,30 @@ bool Unit::sendUnits(int c, Vect2 dest,Unit * outUnit) {
     }
     return false;
 }
+Resource  Unit::CalculateCost(Vect2 statrtLoc, Vect2 destynationLoc,int units, GameWorld& world) {
+    Resource cost;
+    Vect2 currentLoc = statrtLoc;
+    int foodMul = 2 * units, stoneMul = 5;
+
+    while (currentLoc.CompareValues(destynationLoc))
+    {
+        if (world.getChunk(currentLoc.X, currentLoc.Y).Type == Water)
+            cost.addResource(Resource(0, stoneMul, 0, foodMul * 2));
+         else 
+            cost.addResource(Resource(0, stoneMul, 0, foodMul * 2));
+        
+        if (currentLoc.X < destynationLoc.X) {
+            currentLoc = Vect2(currentLoc.X + 1, currentLoc.Y);
+        } else if (currentLoc.X > destynationLoc.X) {
+            currentLoc = Vect2(currentLoc.X - 1, currentLoc.Y);
+        } else if (currentLoc.Y < destynationLoc.Y) {
+            currentLoc = Vect2(currentLoc.X, currentLoc.Y + 1);
+        }else if (currentLoc.Y > destynationLoc.Y) {
+            currentLoc = Vect2(currentLoc.X, currentLoc.Y - 1);
+        }
+    }
+    return cost;
+}
 
 
 

@@ -22,9 +22,10 @@ TODO list
         + Units send interraction provided(from base)
         - Units send intteraction from terrain to another
         - Proper fight handling(cannot atttack base of antoher player if any toher terory exist)
-        + Proper room owner hdling when player dysconnects
+        + Proper room owner hdling when player disconnects
         - Calaculating units move cost
         - Calcualating all units food cost by day
+        - Support cost of structures
         - Support structures on terrains
         - Build/Upgrade strucutre(counitng cost) Inteeaction
         - Support structures actions
@@ -85,36 +86,46 @@ int main()
         string command = "";
         cout << "dbg>";
         cin >> command;
-        if(command == "c"){
+        if(command == "chunk"){
             int x, y;
             cin >> x >> y;
             game.getChunk(x, y).NaturalRes.PrintResources();
-        } else if(command == "t"){
+        } else if(command == "tick"){
             int t=0;
             cin >> t;
-            for (size_t i = 0; i < 20; i++)
+            for (size_t i = 0; i < t; i++)
                 game.GameTick();
-        } else if(command == "su"){
+        } else if(command == "send"){
             string nick = "";
             int x,y,c;
             cin >> nick >> x >> y >> c;
-            cout << game.SendUints(nick,c,Vect2(x,y));
+            cout << game.SendUints(nick,c,Vect2(x,y)) << endl;
         }
-        else if(command == "j"){
+        else if(command == "join"){
             string nick = "";
-            cout << game.JoinPlayer(nick);
-        }else if(command == "l"){
+            cin >> nick;
+            cout << game.JoinPlayer(nick) << endl;
+        }else if(command == "left"){
             string nick = "";
             cin >> nick ;
-            cout << game.JoinPlayer(nick);
-        }else if(command == "sb"){
+            cout << game.LeftPlayer(nick);
+        }else if(command == "base"){
             string nick = "";
             int x,y;
             cin >> nick >> x >> y ;
-            cout << game.SetPlayerBase(nick,Vect2(x,y));
-        } else if(command == "p"){
-        
-             game.PrintPlayes();
+            cout << game.SetPlayerBase(nick, Vect2(x, y)) << endl;
+        }
+        else if (command == "print") {
+            game.PrintPlayes();
+        }
+        else if (command == "help") {
+            cout << "chunk x y" << endl;
+            cout << "tick n" << endl;
+            cout << "send nick count x y" << endl;
+            cout << "join nick" << endl;
+            cout << "left nick" << endl;
+            cout << "base nick x y" << endl;
+            cout << "print" << endl;
         }
 
     }

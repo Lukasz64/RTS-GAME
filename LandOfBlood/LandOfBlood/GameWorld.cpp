@@ -107,6 +107,21 @@ int GameWorld::FindActiveConnectedPlayer() {
             return x;
     return -1;
 }
+
+bool GameWorld::GetRoomState() {
+    //lower rqurmients whe game in run
+    if (gameRunning) {
+        for (size_t x = 0; x < MaxPlayers; x++)
+            if (players[x].getPlayerStatus() == Readay)//players[x].getPlayerStatus() == Readay &&
+                return true;
+    }
+    for (size_t x = 0; x < MaxPlayers; x++)
+        if (players[x].isConnected)//players[x].getPlayerStatus() == Readay &&
+            return true;
+    return false;
+}
+
+
 //
 bool GameWorld::JoinPlayer(string nick)
 {

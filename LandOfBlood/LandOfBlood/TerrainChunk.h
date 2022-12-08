@@ -42,6 +42,11 @@ public:
     static void ProcessUints(Vect2 terrLoc, GameWorld& world);
     static void UnlockUpadte(Vect2 terrLoc, GameWorld& world);
 
+
+    //untested !!!
+    static Resource CalculateCost(Vect2 statrtLoc, Vect2 destynationLoc, int units, GameWorld& world);
+
+
     static  bool  compare(const Unit& lhs,const Unit& rhs)
     {
         Vect2 curr = rhs.currentLoc;

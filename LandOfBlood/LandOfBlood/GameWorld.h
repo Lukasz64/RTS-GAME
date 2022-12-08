@@ -34,6 +34,8 @@ class GameWorld
         bool         SetPlayerBase(std::string nick, Vect2 terrLoc);
         bool         SendUints(std::string nick, int count, Vect2 terrDes);
         
+        //ok in use(true) or to delete(false)
+        bool         GetRoomState();
 
 
         //if nullptr to all players

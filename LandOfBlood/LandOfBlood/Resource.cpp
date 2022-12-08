@@ -30,3 +30,7 @@ void Resource::PrintResources() {
 
     }
 }
+void Resource::addResource(Resource res) {
+    for (size_t i = 0; i < 4; i++)
+        resource[i] += res.resource[i];
+}
