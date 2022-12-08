@@ -1,6 +1,5 @@
 #pragma once
 #include "Player.h"
-#include "Utils.h"
 #include "TerrainChunk.h"
 
 #include <string>
@@ -15,6 +14,7 @@ class GameWorld
         Player       players[MaxPlayers];
         int          day = 0;
         
+        bool         gameRunning = false;   
         int          worldOwner = -1;
         std::string  name = "";
 
@@ -33,14 +33,19 @@ class GameWorld
         bool         LeftPlayer(std::string nick);
         bool         SetPlayerBase(std::string nick, Vect2 terrLoc);
         bool         SendUints(std::string nick, int count, Vect2 terrDes);
+        
+
 
         //if nullptr to all players
+        void         OnChunkUpadte(TerrainChunk & chunk);
+        void         PlayerUpadate(int plID);
+        void         OnPlayerUpadate(Player & pl);
         void         ReportEvent(std::string message, Player* pl = nullptr);
         void         GameTick();
 
 
         void PrintMap();
         void PrintPlayes();
-
+        void ShowGameOwner();
 };
 

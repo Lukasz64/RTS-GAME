@@ -5,7 +5,7 @@
 #include <ctime>
 #include "Utils.h"
 using namespace std;
-
+//#define DISABLE_COLORING
 
 int random(int min, int max) {
     return min + rand() / (RAND_MAX / (max - min + 1) + 1);
@@ -45,8 +45,11 @@ const string colorize(int font, int back, int style) {
         str << "\033[" << font << "m";
         //sprintf(code, "\033[%dm", font);
     }
-
-    return str.str();
+    #ifdef DISABLE_COLORING
+        return "";
+    #else
+        return str.str();
+    #endif
 }
 
 void ReportError(string errmsg) {

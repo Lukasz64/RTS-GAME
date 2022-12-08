@@ -22,7 +22,7 @@ TODO list
         + Units send interraction provided(from base)
         - Units send intteraction from terrain to another
         - Proper fight handling(cannot atttack base of antoher player if any toher terory exist)
-        - Proper room owner hdling when player dysconnects
+        + Proper room owner hdling when player dysconnects
         - Calaculating units move cost
         - Calcualating all units food cost by day
         - Support structures on terrains
@@ -48,20 +48,21 @@ TODO list
 
 int main()
 {
-    GameWorld game(123434);
+    GameWorld game("Game room",123434);
     game.PrintMap();
 
     game.JoinPlayer("Luki");
+    game.ShowGameOwner();
     game.JoinPlayer("Mati");
-    game.LeftPlayer("Mati");
-    game.JoinPlayer("Mati");
+    game.LeftPlayer("Luki");
+    //game.JoinPlayer("Mati");
     game.SetPlayerBase("Mati",Vect2(2,0));
-    game.LeftPlayer("Mati");
-    //game.LeftPlayer("Luki");
+   // game.LeftPlayer("Mati");
+    game.JoinPlayer("Luki");
     game.SetPlayerBase("Luki", Vect2(3, 0));
     game.SendUints("Luki", 26, Vect2(8, 0));
 
-    game.JoinPlayer("Mati");
+    //game.JoinPlayer("Mati");
     game.PrintPlayes();
 
    
@@ -69,25 +70,53 @@ int main()
     cout << game.SendUints("Mati",50,Vect2(8,0)) << endl;
     game.GameTick();
     game.GameTick();
+    game.ShowGameOwner();
 
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
-    game.GameTick();
+    for (size_t i = 0; i < 20; i++)
+        game.GameTick();
+    
+    
 
-
+    
 
     while (true)
     {
-        int x, y;
-        cin >> x >> y;
-        game.getChunk(x, y).NaturalRes.PrintResources();
+
+        string command = "";
+        cout << "dbg>";
+        cin >> command;
+        if(command == "c"){
+            int x, y;
+            cin >> x >> y;
+            game.getChunk(x, y).NaturalRes.PrintResources();
+        } else if(command == "t"){
+            int t=0;
+            cin >> t;
+            for (size_t i = 0; i < 20; i++)
+                game.GameTick();
+        } else if(command == "su"){
+            string nick = "";
+            int x,y,c;
+            cin >> nick >> x >> y >> c;
+            cout << game.SendUints(nick,c,Vect2(x,y));
+        }
+        else if(command == "j"){
+            string nick = "";
+            cout << game.JoinPlayer(nick);
+        }else if(command == "l"){
+            string nick = "";
+            cin >> nick ;
+            cout << game.JoinPlayer(nick);
+        }else if(command == "sb"){
+            string nick = "";
+            int x,y;
+            cin >> nick >> x >> y ;
+            cout << game.SetPlayerBase(nick,Vect2(x,y));
+        } else if(command == "p"){
+        
+             game.PrintPlayes();
+        }
+
     }
 }
 

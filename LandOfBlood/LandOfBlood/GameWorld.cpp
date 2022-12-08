@@ -103,20 +103,25 @@ int GameWorld::FindFreePlayerSlot() {
 }
 int GameWorld::FindActiveConnectedPlayer() {
     for (size_t x = 0; x < MaxPlayers; x++)
-        if (players[x].getPlayerStatus() == Readay && players[x].isConnected)
+        if (players[x].isConnected)//players[x].getPlayerStatus() == Readay &&
             return x;
     return -1;
 }
 //
 bool GameWorld::JoinPlayer(string nick)
 {
+    //dont accept empty nick
+    if(nick == "")
+        return false;
+        
     int palyerSlot = FindPlayer(nick);
     if (palyerSlot != -1) {
         if (players[palyerSlot].isConnected)
             return false;// dubler join
         else {
-            //come back to game
+            //come back to game          
             players[palyerSlot].isConnected = true;
+            PlayerUpadate(palyerSlot);
             return true;
         }
     }
@@ -124,10 +129,25 @@ bool GameWorld::JoinPlayer(string nick)
     if (freeSlot != -1) {
         players[freeSlot] = Player(nick);
         players[freeSlot].isConnected = true;
+        if(worldOwner == -1)
+            worldOwner = freeSlot;
+
+        PlayerUpadate(freeSlot);
+        return true;
     }
 
     return   false;// room full
 }
+void GameWorld::ShowGameOwner(){
+    int pl = worldOwner;
+    if(pl != -1){
+        cout << "---------------------->"<<endl<<"world owner:" << players[pl].nick << endl;
+    } else {
+        cout << "to delete room" << endl;
+    }
+
+}
+
 //
 bool GameWorld::LeftPlayer(string nick)
 {
@@ -135,12 +155,7 @@ bool GameWorld::LeftPlayer(string nick)
     if (palyerSlot != -1) {
         if (players[palyerSlot].isConnected) {
             
-            if (worldOwner == palyerSlot) {
 
-            }
-
-
-            //[TODO]* fix change world owner
 
             //if player was not reigstred only connected
             if (players[palyerSlot].getPlayerStatus() == NoReady)
@@ -148,6 +163,11 @@ bool GameWorld::LeftPlayer(string nick)
             else
                 players[palyerSlot].isConnected = false;
 
+            if (worldOwner == palyerSlot && gameRunning == false) {
+                cout << "-------------------host change--------------------"<< endl;
+                worldOwner = FindActiveConnectedPlayer();
+                PlayerUpadate(worldOwner);
+            }
             return true;
         }
     }
@@ -182,13 +202,27 @@ void GameWorld::GameTick() {
 
     for (size_t x = 0; x < WorldSize; x++)
         for (size_t y = 0; y < WorldSize; y++) {
+            //remove lock from units movment( lock is to prevend dobule processing the same unit)
             Unit::UnlockUpadte(Vect2(x, y), *this);
             if ((chunks[x][y].ToUpadte())) {
-                cout << "chunk" << chunks[x][y].Loc.ToString() << " needs update" << endl;
+                OnChunkUpadte(chunks[x][y]);         
             }
         }
 }
+void GameWorld::OnChunkUpadte(TerrainChunk & chunk){
+    //cout << "chunk" << chunk.Loc.ToString() << " needs update" << endl;
+}
 
+void GameWorld::PlayerUpadate(int plId){
+    if(plId != -1){
+        OnPlayerUpadate(players[plId]);
+    } else {
+        cout << "wrong player update(player ID = -1)" << endl;
+    }
+}
+void GameWorld::OnPlayerUpadate(Player & pl){
+        cout << "player " << pl.nick << " needs update" << endl;
+}
 bool GameWorld::SendUints(std::string nick,int count, Vect2 terrDes) {
     int player = FindPlayer(nick);
     if (player != -1 && players[player].getPlayerStatus() == Readay) {
@@ -208,6 +242,9 @@ bool Player::setBase(Player * players, TerrainChunk & selectedBase) {
         return false;
     //start field cannot be the Water
     if (selectedBase.Type == Water)
+        return false;
+    //terrain own to somebody
+    if(selectedBase.TerrainOwner != nullptr)
         return false;
     //check that field is free
     for (size_t i = 0; i < MaxPlayers; i++)
