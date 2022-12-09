@@ -298,12 +298,17 @@ Vect2 Player::getBaseLoc() {
 }
 
 bool Player::SendUnits(GameWorld& world,int count, Vect2 dest) {
-    Unit u;
-    if (base->StcjonaryUnit.sendUnits(count, dest, &u)) {
-        base->MovingUnits.push_back(u);
-        base->ToUpadte();
-        world.ReportEvent("Units send to " + dest.ToString(), this);
-        return true;
+    Resource cost = Unit::CalculateCost(base->Loc, dest, count, world);
+    // we have to affotrt that to go
+    if (base->NaturalRes.canSubstract(cost)) {
+        base->NaturalRes.subResource(cost);
+        Unit u;
+        if (base->StcjonaryUnit.sendUnits(count, dest, &u)) {
+            base->MovingUnits.push_back(u);
+            base->ToUpadte();
+            world.ReportEvent("Units send to " + dest.ToString(), this);
+            return true;
+        }
     }
     return false;
 }

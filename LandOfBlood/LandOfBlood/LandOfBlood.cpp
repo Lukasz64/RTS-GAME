@@ -77,8 +77,21 @@ int main()
         game.GameTick();
     
     
+    Resource res(100, 20, 300, 3000);
 
-    
+    cout << res.canSubstract(Resource(200,0,0,0)) << endl;
+    cout << res.canSubstract(Resource(100,0,0,0)) << endl;
+    cout << res.canSubstract(Resource(100, 20, 300, 3000)) << endl;
+    cout << res.canSubstract(Resource(50, 10, 11, 1000)) << endl;
+    cout << res.canSubstract(Resource(50, 555, 11, 1000)) << endl;
+    cout << res.canSubstract(Resource(50, 555, 111, 1000)) << endl;
+    cout << res.canSubstract(Resource(50, 555, 111, 11000)) << endl;
+
+
+    cout << res.subResource(Resource(50, 19, 299, 3000)) << endl;
+    cout << res.canSubstract(Resource(50, 2, 1, 0)) << endl;
+    cout << res.canSubstract(Resource(51, 0, 0, 0)) << endl;
+
 
     while (true)
     {

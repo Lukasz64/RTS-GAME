@@ -45,4 +45,5 @@ bool Resource::subResource(Resource res){
         return false;
     for (size_t i = 0; i < 4; i++)
         resource[i] -= res.resource[i];
+    return true;
 }

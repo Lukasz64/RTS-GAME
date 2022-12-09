@@ -7,7 +7,4 @@ D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\GameWorld.cpp(101,21): warning C4267: "r
 D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\GameWorld.cpp(107,21): warning C4267: "return": konwersja z "size_t" do "int", możliwa utrata danych
 D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\GameWorld.cpp(214,41): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
 D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\GameWorld.cpp(221,42): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
-  LandOfBlood.cpp
-  TerrainChunk.cpp
-  Generowanie kodu...
   LandOfBlood.vcxproj -> D:\Git\RTS-GAME\LandOfBlood\x64\Debug\LandOfBlood.exe
