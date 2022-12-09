@@ -34,3 +34,15 @@ void Resource::addResource(Resource res) {
     for (size_t i = 0; i < 4; i++)
         resource[i] += res.resource[i];
 }
+bool Resource::canSubstract(Resource res){
+    for (size_t i = 0; i < 4; i++)
+        if(resource[i] < res.resource[i])
+            return false;
+    return true;
+}
+bool Resource::subResource(Resource res){
+    if(!canSubstract(res))
+        return false;
+    for (size_t i = 0; i < 4; i++)
+        resource[i] -= res.resource[i];
+}

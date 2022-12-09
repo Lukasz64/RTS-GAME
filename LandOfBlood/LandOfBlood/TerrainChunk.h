@@ -76,7 +76,7 @@ enum ChunkType
 };
 
 class TerrainChunk
-    {
+{
     private:
         bool         needUpade = true;
     public:
@@ -101,8 +101,7 @@ class TerrainChunk
         void GenResoucesAsPlayerBase(Player* owner);
 
    
-
-    };
+};
 
 
 

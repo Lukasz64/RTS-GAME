@@ -200,7 +200,7 @@ bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
 }
 void GameWorld::ReportEvent(std::string message, Player* pl) {
     if (pl != nullptr) {
-        cout << colorize(BLUE) << "To " << pl->nick << " event: " << message<< colorize(NC) << endl;
+        cout << colorize(YELLOW) << "To " << pl->nick << " event: " << message<< colorize(NC) << endl;
     }
     else {
         cout << colorize(GREEN) << "To all event: " << message << colorize(NC) << endl;

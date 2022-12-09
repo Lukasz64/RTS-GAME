@@ -250,18 +250,19 @@ bool Unit::sendUnits(int c, Vect2 dest,Unit * outUnit) {
     }
     return false;
 }
+/*
+    mebe smoeday:
+        add lower cost if teriory is own by player 
+        change doom units movement
+*/
 Resource  Unit::CalculateCost(Vect2 statrtLoc, Vect2 destynationLoc,int units, GameWorld& world) {
     Resource cost;
     Vect2 currentLoc = statrtLoc;
-    int foodMul = 2 * units, stoneMul = 5;
+    int foodMul = 2 * units, stoneMul = 20;
+    //woodM  = units * 4;
 
-    while (currentLoc.CompareValues(destynationLoc))
-    {
-        if (world.getChunk(currentLoc.X, currentLoc.Y).Type == Water)
-            cost.addResource(Resource(0, stoneMul, 0, foodMul * 2));
-         else 
-            cost.addResource(Resource(0, stoneMul, 0, foodMul * 2));
-        
+    while (!currentLoc.CompareValues(destynationLoc))
+    {     
         if (currentLoc.X < destynationLoc.X) {
             currentLoc = Vect2(currentLoc.X + 1, currentLoc.Y);
         } else if (currentLoc.X > destynationLoc.X) {
@@ -271,6 +272,14 @@ Resource  Unit::CalculateCost(Vect2 statrtLoc, Vect2 destynationLoc,int units, G
         }else if (currentLoc.Y > destynationLoc.Y) {
             currentLoc = Vect2(currentLoc.X, currentLoc.Y - 1);
         }
+        
+        TerrainChunk chunk = world.getChunk(currentLoc.X, currentLoc.Y);
+        if (chunk.Type == Water)
+            cost.addResource(Resource(0, stoneMul, 0, foodMul * 2));
+         else{
+            cost.addResource(Resource(0, stoneMul, 0, foodMul));
+        }
+        world.ReportEvent("on "+ currentLoc.ToString());
     }
     return cost;
 }

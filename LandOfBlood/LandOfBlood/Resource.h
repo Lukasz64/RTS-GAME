@@ -14,8 +14,12 @@
         Resource(int wood, int stone, int gold, int food);
 
         void addResource(Resource res);
+        bool canSubstract(Resource res);
+        bool subResource(Resource res);
 
         void setResource(ResourceType id, int value);
         int getResource(ResourceType id);
+
+
         void PrintResources();
     };

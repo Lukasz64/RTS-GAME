@@ -118,6 +118,15 @@ int main()
         else if (command == "print") {
             game.PrintPlayes();
         }
+        else if (command == "map") {
+            game.PrintMap();
+        }
+        else if (command == "trace") {
+            int x1,x2,y1,y2,c;
+            cin >> x1>>y1 >> x2 >> y2 >> c;
+            Unit::CalculateCost(Vect2(x1,y1),Vect2(x2,y2),c,game).PrintResources();
+            //game.PrintMap();
+        }
         else if (command == "help") {
             cout << "chunk x y" << endl;
             cout << "tick n" << endl;
@@ -126,6 +135,8 @@ int main()
             cout << "left nick" << endl;
             cout << "base nick x y" << endl;
             cout << "print" << endl;
+            cout << "map" << endl;
+            cout << "trace x1 y1 x2 y2 count" << endl;
         }
 
     }
