@@ -31,6 +31,8 @@ public:
     bool isOwner(Player* pl);
     bool sendUnits(int count, Vect2 dest, Unit* outUnit);
 
+    void PrintUnit();
+
 
     Unit(Player* owner, int count);
     Unit(Vect2 currentL) { currentLoc = currentL; };
@@ -49,10 +51,10 @@ public:
 
     static  bool  compare(const Unit& lhs,const Unit& rhs)
     {
-        Vect2 curr = rhs.currentLoc;
+        Vect2 curr = lhs.currentLoc;
         Vect2 curr2 = rhs.currentLoc;
 
-        Vect2 dest = rhs.destynationLoc;
+        Vect2 dest = lhs.destynationLoc;
         Vect2 dest2 = rhs.destynationLoc;
 
 

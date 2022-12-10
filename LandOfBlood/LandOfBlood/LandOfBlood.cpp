@@ -20,10 +20,10 @@ TODO list
         + Units Interraction
         + Supoort selecting olny changed terrains
         + Units send interraction provided(from base)
-        - Units send intteraction from terrain to another
-        - Proper fight handling(cannot atttack base of antoher player if any toher terory exist)
+        + Units send intteraction from terrain to another
+        + Proper fight handling(cannot atttack base of antoher player if any toher terory exist)
         + Proper room owner hdling when player disconnects
-        - Calaculating units move cost
+        + Calaculating units move cost
         - Calcualating all units food cost by day
         - Support cost of structures
         - Support structures on terrains
@@ -50,6 +50,8 @@ TODO list
 int main()
 {
     GameWorld game("Game room",123434);
+    srand(time(NULL));
+
     game.PrintMap();
 
     game.JoinPlayer("Luki");
@@ -61,18 +63,27 @@ int main()
    // game.LeftPlayer("Mati");
     game.JoinPlayer("Luki");
     game.SetPlayerBase("Luki", Vect2(3, 0));
-    game.SendUints("Luki", 26, Vect2(8, 0));
+    game.SendUints("Luki", 30, Vect2(8, 0));
+    game.SendUints("Luki", 30, Vect2(8, 2));
 
     //game.JoinPlayer("Mati");
     game.PrintPlayes();
 
    
     game.GameTick();
-    cout << game.SendUints("Mati",50,Vect2(8,0)) << endl;
+    
+   // cout << game.SendUints("Mati",50,Vect2(4,0)) << endl;
+    
     game.GameTick();
     game.GameTick();
     game.ShowGameOwner();
 
+    for (size_t i = 0; i < 20; i++)
+        game.GameTick();
+
+    cout << game.SendUints("Mati", 100, Vect2(3, 0)) << endl;
+
+    cout << game.BackToBaseUints("Mati", 50, Vect2(4, 0)) << endl;
     for (size_t i = 0; i < 20; i++)
         game.GameTick();
     
@@ -102,7 +113,9 @@ int main()
         if(command == "chunk"){
             int x, y;
             cin >> x >> y;
-            game.getChunk(x, y).NaturalRes.PrintResources();
+            TerrainChunk chunk = game.getChunk(x, y);
+            chunk.NaturalRes.PrintResources();
+            chunk.StcjonaryUnit.PrintUnit();
         } else if(command == "tick"){
             int t=0;
             cin >> t;
@@ -113,6 +126,12 @@ int main()
             int x,y,c;
             cin >> nick >> x >> y >> c;
             cout << game.SendUints(nick,c,Vect2(x,y)) << endl;
+        }
+        else if (command == "back") {
+            string nick = "";
+            int x, y, c;
+            cin >> nick >> x >> y >> c;
+            cout << game.BackToBaseUints(nick, c, Vect2(x, y)) << endl;
         }
         else if(command == "join"){
             string nick = "";

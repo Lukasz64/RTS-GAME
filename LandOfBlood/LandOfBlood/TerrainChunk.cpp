@@ -121,8 +121,6 @@ void Unit::GoNewLocation(GameWorld& world, Vect2 newLoc) {
 
     cuurrentChunk->MovingUnits.remove(*this);
     
-
-    updated = true;
     currentLoc = newLoc;
     
     if (newChunk->Type == Water)
@@ -154,18 +152,37 @@ void Unit::GoNewLocation(GameWorld& world, Vect2 newLoc) {
             else {// fight
                 //succes
                 if (newChunk->StcjonaryUnit.count * 2 < count) {
+                    
+                    // if teriory is player base it has different rules
+                    if (newChunk->TerrainOwner->IsPlayerBase(*newChunk)) {
+                        //if has connt be dedefted
+                        if (newChunk->TerrainOwner->HasAnyOtherTeriory(world)) {
+                            destynationLoc = owner->getBaseLoc();
+                            world.ReportEvent("Your base territory defended" + newChunk->Loc.ToString() + ", on attack by " + owner->nick, newChunk->TerrainOwner);
+                            world.ReportEvent("Units fail take over " + newChunk->Loc.ToString() + " becouse this is player base and has another teriories", owner);
+                            newChunk->MovingUnits.push_back(*this);
+                            return;
+                        }
+                        else // player failed
+                        {
+                            newChunk->TerrainOwner->setPlayerDefeated();
+                            world.ReportEvent("Player " + newChunk->TerrainOwner->nick + " has been defeated by " + owner->nick);
+                            world.OnPlayerUpadate(*newChunk->TerrainOwner);
+                        }
+                    }
+                    
                     world.ReportEvent("Your territory " + newChunk->Loc.ToString() + ", has been defeated by " + owner->nick, newChunk->TerrainOwner);
                     world.ReportEvent("Units take over terrain" + newChunk->Loc.ToString(), owner);
 
                     newChunk->TerrainOwner = owner;
                     newChunk->StcjonaryUnit.owner = owner;
                     //takig unis from other player(max half)
-                    newChunk->StcjonaryUnit.count = count + random(0, newChunk->StcjonaryUnit.count / 2);
+                    newChunk->StcjonaryUnit.count = count + random(1, newChunk->StcjonaryUnit.count / 2);
                     return;
                 }
                 else { // defend
                     destynationLoc = owner->getBaseLoc();
-                    count = random(1, count / 2);
+                    count = random(count / 3, count / 2);
 
                     world.ReportEvent("Your territory defended" + newChunk->Loc.ToString() + ", on attack by " + owner->nick, newChunk->TerrainOwner);
                     world.ReportEvent("Units fail take over terrain" + newChunk->Loc.ToString(), owner);
@@ -189,6 +206,9 @@ void Unit::ProcessUnit(GameWorld& world) {
     //don't nesesry any move
     if (currentLoc.CompareValues(destynationLoc))
         return;
+
+    updated = true;
+
     //delay on move
     if (delay > 0) {
         TerrainChunk* cuurrentChunk = world.getChunkForUpadte(currentLoc.X, currentLoc.Y);
@@ -196,7 +216,6 @@ void Unit::ProcessUnit(GameWorld& world) {
         cuurrentChunk->MovingUnits.remove(*this);
         delay--;
         cuurrentChunk->MovingUnits.push_back(*this);
-
         return;
     }
 
@@ -219,8 +238,10 @@ void Unit::ProcessUnit(GameWorld& world) {
     }
 }
 void Unit::ProcessUints(Vect2 terrLoc, GameWorld& world) {
-    for (Unit n : world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits)
+    for (Unit n : world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits) {
+        //cout << colorize(RED) << "[" << terrLoc.ToString() << "]" << n.owner->nick << n.currentLoc.ToString() << endl;
         n.ProcessUnit(world);
+    }
 }
 void Unit::UnlockUpadte(Vect2 terrLoc, GameWorld& world) {
     list<Unit> units = world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits;
@@ -282,6 +303,14 @@ Resource  Unit::CalculateCost(Vect2 statrtLoc, Vect2 destynationLoc,int units, G
         world.ReportEvent("on "+ currentLoc.ToString());
     }
     return cost;
+}
+void Unit::PrintUnit() {
+    if (owner == nullptr) {
+        cout << colorize(RED) << "No owner" << colorize(NC) << endl;
+        return;
+    }
+    cout << colorize(YELLOW) << "Owner:" << colorize(GREEN) << owner->nick << endl;
+    cout << colorize(YELLOW) << "Units count:" << colorize(GREEN) << count << colorize(NC) << endl;
 }
 
 

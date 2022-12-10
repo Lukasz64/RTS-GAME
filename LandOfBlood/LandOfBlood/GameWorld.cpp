@@ -193,7 +193,13 @@ bool GameWorld::LeftPlayer(string nick)
 bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
     int player = FindPlayer(nick);
     if (player != -1) {
-        return players[player].setBase(players, *getChunkForUpadte(terrLoc.X, terrLoc.Y));// chunks[terrLoc.X][terrLoc.Y]
+
+        bool res = players[player].setBase(players, *getChunkForUpadte(terrLoc.X, terrLoc.Y));// chunks[terrLoc.X][terrLoc.Y]
+
+        if (res)
+            OnPlayerUpadate(players[player]);
+
+        return res;
     }
     // player not found
     return false;
@@ -242,6 +248,15 @@ bool GameWorld::SendUints(std::string nick,int count, Vect2 terrDes) {
     int player = FindPlayer(nick);
     if (player != -1 && players[player].getPlayerStatus() == Readay) {
         return players[player].SendUnits(*this, count, terrDes);// chunks[terrLoc.X][terrLoc.Y]
+    }
+    // player not found
+    return false;
+}
+
+bool GameWorld::BackToBaseUints(std::string nick, int count, Vect2 backTerritory) {
+    int player = FindPlayer(nick);
+    if (player != -1 && players[player].getPlayerStatus() == Readay) {
+        return players[player].BackUnits(*this, count, backTerritory);// chunks[terrLoc.X][terrLoc.Y]
     }
     // player not found
     return false;
@@ -301,9 +316,14 @@ bool Player::SendUnits(GameWorld& world,int count, Vect2 dest) {
     Resource cost = Unit::CalculateCost(base->Loc, dest, count, world);
     // we have to affotrt that to go
     if (base->NaturalRes.canSubstract(cost)) {
-        base->NaturalRes.subResource(cost);
+        
         Unit u;
         if (base->StcjonaryUnit.sendUnits(count, dest, &u)) {
+            //take cost
+            base->NaturalRes.subResource(cost);
+            // upadte player
+            world.OnPlayerUpadate(*this);
+            // send units and upadte base
             base->MovingUnits.push_back(u);
             base->ToUpadte();
             world.ReportEvent("Units send to " + dest.ToString(), this);
@@ -311,6 +331,66 @@ bool Player::SendUnits(GameWorld& world,int count, Vect2 dest) {
         }
     }
     return false;
+}
+
+/*
+    it looks like SendUnits Back Units are similar, mabe send from territory to territory 
+    will be better function(base including ) 
+    but this in future(maybe not in project release)
+*/
+bool Player::BackUnits(GameWorld& world, int count, Vect2 teritory) {
+    //cannot send form base to base
+    if (base->Loc.CompareValues(teritory))
+        return false;
+    
+    TerrainChunk * chunk = world.getChunkForUpadte(teritory.X, teritory.Y);
+
+    if (chunk->TerrainOwner != this)
+        return false;
+    
+    Resource cost = Unit::CalculateCost(teritory, base->Loc, count, world);
+    
+    /*cout << "costs:" << endl;
+    cost.PrintResources();*/
+
+    // we have to affotrt that to go
+    if (base->NaturalRes.canSubstract(cost)) {
+        Unit u;
+        if (chunk->StcjonaryUnit.sendUnits(count, base->Loc, &u)) {
+            // take cost
+            base->NaturalRes.subResource(cost);
+            // upade player
+            world.OnPlayerUpadate(*this);
+            // upade tertiory
+            chunk->MovingUnits.push_back(u);
+            chunk->ToUpadte();
+            world.ReportEvent("Units send to base " + base->Loc.ToString(), this);
+            return true;
+        }
+    } else {
+        world.ReportEvent("You cant afford for send units from " + teritory.ToString() + " to your base " + base->Loc.ToString(), this);
+    }
+    return false;
+}
+
+bool Player::IsPlayerBase(TerrainChunk& terrain) {
+    if (base == nullptr)
+        return false;
+    return (terrain.Loc.CompareValues(base->Loc));
+}
+bool Player::HasAnyOtherTeriory(GameWorld& world) {
+    for (size_t x = 0; x < WorldSize; x++)
+        for (size_t y = 0; y < WorldSize; y++) {
+            TerrainChunk chunk = world.getChunk(x,y);
+            // if any terrain is owned by player but is not his base succes
+            if (chunk.TerrainOwner == this && !IsPlayerBase(chunk))
+                return true;
+        }
+    return false;
+}
+
+void  Player::setPlayerDefeated() {
+    defeated = true;
 }
 
 

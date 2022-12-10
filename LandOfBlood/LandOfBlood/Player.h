@@ -34,9 +34,14 @@ public:
     ~Player();
 
     bool setBase(Player* players, TerrainChunk& base);
+    void setPlayerDefeated();
+
     Vect2 getBaseLoc();
     PlayerStaus getPlayerStatus();
 
     bool SendUnits(GameWorld& world, int count, Vect2 dest);
+    bool BackUnits(GameWorld& world, int count, Vect2 teritory);
+    bool IsPlayerBase(TerrainChunk& terrain);
+    bool HasAnyOtherTeriory(GameWorld& world);
 
 };
