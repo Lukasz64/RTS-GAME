@@ -300,7 +300,7 @@ Resource  Unit::CalculateCost(Vect2 statrtLoc, Vect2 destynationLoc,int units, G
          else{
             cost.addResource(Resource(0, stoneMul, 0, foodMul));
         }
-        world.ReportEvent("on "+ currentLoc.ToString());
+        //world.ReportEvent("on "+ currentLoc.ToString());
     }
     return cost;
 }

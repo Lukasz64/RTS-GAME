@@ -11,7 +11,9 @@
         unsigned int resource[4] = { 0 };
     public:
         Resource() {};
+        Resource(Resource & res, int mutiplier);
         Resource(int wood, int stone, int gold, int food);
+
 
         void addResource(Resource res);
         bool canSubstract(Resource res);

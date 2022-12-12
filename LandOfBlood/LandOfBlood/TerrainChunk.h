@@ -65,8 +65,25 @@ private:
 
 };
 
+const int MaxConstr = 3;
 
+class Construction {
+    private:
+        Resource profit[MaxConstr];
+        Resource buildCosts[MaxConstr];
+        int      workUnits[MaxConstr];
 
+    public:
+        int ConstrID = 0;
+        Construction() = default;
+        Construction(Resource profit,Resource cost,int workUnits, int upgrade1Mul,int upgrade2Mul);
+
+        bool CanUpgrade(Resource & res);
+        bool Upgrade(Resource & res);
+
+        ~Construction() = default;
+
+};
 
 const int TypesCount = 4;
 enum ChunkType

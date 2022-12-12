@@ -13,8 +13,8 @@ using namespace std;
 /*
 TODO list
     GameLogic:
-        + Gerate Map
-        + Gerate Resources
+        + Generate Map
+        + Generate Resources
         + Player State Conotrol
         + Units Movement
         + Units Interraction
@@ -30,6 +30,13 @@ TODO list
         - Build/Upgrade strucutre(counitng cost) Inteeaction
         - Support structures actions
     Server:
+        -Support Container wrtie int/string/vect2
+        -Support Container read int/string/vect2
+        -Support Container nastyfiaction(conatiner in container)
+        -Support GameLogis Thread instacing
+        -Support GameLogic Queue coomuniaction
+        -Support GameLogis Feedback to users
+        -Support RPC(remote procedure control)
         -Support client hadling (join/register/left)
         -Support variable parser(making pacckage)
         -Support rpc(remote procdres control)
@@ -50,6 +57,7 @@ TODO list
 int main()
 {
     GameWorld game("Game room",123434);
+    Construction sonstr(Resource(1,1,1,1),Resource(2,2,4,4),10,2,5);
     srand(time(NULL));
 
     game.PrintMap();
@@ -147,7 +155,7 @@ int main()
             cin >> nick >> x >> y ;
             cout << game.SetPlayerBase(nick, Vect2(x, y)) << endl;
         }
-        else if (command == "print") {
+        else if (command == "player") {
             game.PrintPlayes();
         }
         else if (command == "map") {
@@ -166,7 +174,7 @@ int main()
             cout << "join nick" << endl;
             cout << "left nick" << endl;
             cout << "base nick x y" << endl;
-            cout << "print" << endl;
+            cout << "player" << endl;
             cout << "map" << endl;
             cout << "trace x1 y1 x2 y2 count" << endl;
         }

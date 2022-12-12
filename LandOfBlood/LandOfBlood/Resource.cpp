@@ -10,18 +10,24 @@
 
 using namespace std;
 
-void Resource::setResource(ResourceType id, int value) {
-    resource[id] = value;
-}
-int Resource::getResource(ResourceType id) {
-    return resource[id];
-}
 Resource::Resource(int wood, int stone, int gold, int food) {
     setResource(Wood, wood);
     setResource(Stone, stone);
     setResource(Gold, gold);
     setResource(Food, food);
 }
+Resource::Resource(Resource & res, int mutiplier){
+        for (size_t i = 0; i < 4; i++)
+            resource[i] = res.resource[i] * mutiplier;
+}
+
+void Resource::setResource(ResourceType id, int value) {
+    resource[id] = value;
+}
+int Resource::getResource(ResourceType id) {
+    return resource[id];
+}
+
 void Resource::PrintResources() {
     string names[] = { "Wood","Stone","Gold","Food" };
     for (size_t i = 0; i < 4; i++)
