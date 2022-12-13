@@ -5,7 +5,7 @@
 #include <ctime>
 #include "Utils.h"
 using namespace std;
-#define DISABLE_COLORING
+//#define DISABLE_COLORING
 
 int random(int min, int max) {
     return min + rand() / (RAND_MAX / (max - min + 1) + 1);

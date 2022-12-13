@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Constructions.cpp" />
     <ClCompile Include="GameWorld.cpp" />
     <ClCompile Include="LandOfBlood.cpp" />
     <ClCompile Include="Resource.cpp" />
