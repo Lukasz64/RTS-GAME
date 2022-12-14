@@ -53,3 +53,9 @@ bool Resource::subResource(Resource res){
         resource[i] -= res.resource[i];
     return true;
 }
+Resource Resource::GetDevidedCopy(int devider){
+    Resource r(*this,1);
+    for(int i=0;i<4;i++)
+        r.resource[i] /= devider;
+    return r;
+}

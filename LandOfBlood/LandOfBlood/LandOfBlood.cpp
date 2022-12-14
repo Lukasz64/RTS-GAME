@@ -57,7 +57,7 @@ TODO list
 int main()
 {
     GameWorld game("Game room",123434);
-    Construction sonstr(Resource(1,1,1,1),Resource(2,2,4,4),10,2,5);
+    Construction sonstr(1,Resource(1,1,1,1),Resource(2,2,4,4),10,2,5);
     srand(time(NULL));
 
     game.PrintMap();
@@ -170,7 +170,7 @@ int main()
         else if (command == "help") {
             cout << "chunk x y" << endl;
             cout << "tick n" << endl;
-            cout << "send nick count x y" << endl;
+            cout << "send nick x y count" << endl;
             cout << "join nick" << endl;
             cout << "left nick" << endl;
             cout << "base nick x y" << endl;

@@ -87,6 +87,16 @@ bool TerrainChunk::ToUpadte() {
 void TerrainChunk::OnModifed(){
     needUpade = true;
 }
+void TerrainChunk::ConstructionsTick(){
+    //ooptmize
+    if(TerrainOwner == nullptr)
+        return;
+
+    //process all structres
+    for (int i = 0, units = StcjonaryUnit.getCount(); i < 4 && units > 0; i++)
+        if(Constructions[i].Tick(*this,units))
+            needUpade = true;
+}
 
 bool operator==(const Unit& lhs, const Unit& rhs)
 {
@@ -312,6 +322,8 @@ void Unit::PrintUnit() {
     cout << colorize(YELLOW) << "Owner:" << colorize(GREEN) << owner->nick << endl;
     cout << colorize(YELLOW) << "Units count:" << colorize(GREEN) << count << colorize(NC) << endl;
 }
-
+int Unit::getCount(){
+    return count;
+}
 
 

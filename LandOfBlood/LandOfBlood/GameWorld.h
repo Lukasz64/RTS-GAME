@@ -34,6 +34,7 @@ class GameWorld
         bool         SetPlayerBase(std::string nick, Vect2 terrLoc);
         bool         SendUints(std::string nick, int count, Vect2 terrDes);
         bool         BackToBaseUints(std::string nick, int count, Vect2 backTerritory);
+        bool         UpgradeConstruction(std::string nick,int id,Vect2 teritory);
         
         //ok in use(true) or to delete(false)
         bool         GetRoomState();

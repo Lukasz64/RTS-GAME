@@ -22,6 +22,8 @@
         void setResource(ResourceType id, int value);
         int getResource(ResourceType id);
 
+        Resource GetDevidedCopy(int devided);
+
 
         void PrintResources();
     };

@@ -6,7 +6,7 @@
 #include <list>
 
 
-
+class TerrainChunk;
 class GameWorld;
 class Unit;
 class Player;
@@ -38,6 +38,7 @@ public:
     Unit(Vect2 currentL) { currentLoc = currentL; };
     Unit() {};
     ~Unit() {};
+    int getCount();
 
 
 
@@ -75,11 +76,14 @@ class Construction {
 
     public:
         int ConstrID = 0;
+        int ConstrLvl = 0;
+
         Construction() = default;
-        Construction(Resource profit,Resource cost,int workUnits, int upgrade1Mul,int upgrade2Mul);
+        Construction(int constrID,Resource profit,Resource cost,int workUnits, int upgrade1Mul,int upgrade2Mul);
 
         bool CanUpgrade(Resource & res);
         bool Upgrade(Resource & res);
+        bool Tick(TerrainChunk & chunk, int & units);
 
         ~Construction() = default;
 
@@ -102,13 +106,20 @@ class TerrainChunk
         ChunkType    Type;
         Vect2        Loc;
         Resource     NaturalRes;
-        Player* TerrainOwner = nullptr;
+        Player     * TerrainOwner = nullptr;
         Unit         StcjonaryUnit;
 
+        Construction Constructions[4] = {
+            Construction(1,Resource(100,200,0,500),Resource(0,0,0,400),5,2,10),//farm
+            Construction(2,Resource(500,100,500,1000),Resource(0,10,5,0),50,10,100),//mine
+            Construction(3,Resource(200,200,20,100),Resource(20,0,0,0),10,5,20),//swaill
+            Construction(4,Resource(10000,5000,4000,10000),Resource(0,10,50,100),50,20,100)//willage
+        };
 
 
         std::list<Unit> MovingUnits;
 
+        void ConstructionsTick();
         bool ToUpadte();
         void OnModifed();
 

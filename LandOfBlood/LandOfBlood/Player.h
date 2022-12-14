@@ -5,7 +5,7 @@
 #include "Utils.h"
 #include <string>
 
-
+class Resource;
 class GameWorld;
 class Unit;
 class TerrainChunk;
@@ -36,9 +36,11 @@ public:
     bool setBase(Player* players, TerrainChunk& base);
     void setPlayerDefeated();
 
+    Resource * getPlayerResources();
     Vect2 getBaseLoc();
     PlayerStaus getPlayerStatus();
 
+    void BaseUpdate();
     bool SendUnits(GameWorld& world, int count, Vect2 dest);
     bool BackUnits(GameWorld& world, int count, Vect2 teritory);
     bool IsPlayerBase(TerrainChunk& terrain);

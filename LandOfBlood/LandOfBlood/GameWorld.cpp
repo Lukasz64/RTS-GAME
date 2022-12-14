@@ -218,7 +218,14 @@ void GameWorld::GameTick() {
     for (size_t x = 0; x < WorldSize; x++)
         for (size_t y = 0; y < WorldSize; y++) {
             Unit::ProcessUints(Vect2(x,y), *this);
+            chunks[x][y].ConstructionsTick();
             //process rest
+        }
+    //always upadte base
+    for(size_t x = 0; x < MaxPlayers; x++)
+        if(players[x].getPlayerStatus() == Readay){
+            OnPlayerUpadate(players[x]);
+            players[x].BaseUpdate();
         }
 
     for (size_t x = 0; x < WorldSize; x++)
@@ -262,6 +269,23 @@ bool GameWorld::BackToBaseUints(std::string nick, int count, Vect2 backTerritory
     return false;
 }
 
+bool  GameWorld::UpgradeConstruction(std::string nick,int id,Vect2 teritory){
+    int player = FindPlayer(nick);
+    if (player != -1 && players[player].getPlayerStatus() == Readay) {
+        Player * pl = &players[player];
+        TerrainChunk * chunk = getChunkForUpadte(teritory.X,teritory.Y);
+        //not player teriory
+        if(chunk->TerrainOwner != pl)
+            return false;
+        if(chunk->Constructions[id].Upgrade(*pl->getPlayerResources())){
+            OnPlayerUpadate(*pl);
+            return true;
+        }
+
+    }
+    // player not found
+    return false;
+}
 
 
 
@@ -310,6 +334,12 @@ PlayerStaus Player::getPlayerStatus() {
 }
 Vect2 Player::getBaseLoc() {
     return base->Loc;
+}
+Resource * Player::getPlayerResources(){
+    return &base->NaturalRes;
+}
+void Player::BaseUpdate(){
+    base->OnModifed();
 }
 
 bool Player::SendUnits(GameWorld& world,int count, Vect2 dest) {
