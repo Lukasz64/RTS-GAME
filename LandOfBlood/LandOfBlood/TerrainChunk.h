@@ -28,6 +28,8 @@ class Unit
 public:
 
     bool Add(Unit& unit);
+    bool Substract(int count);
+
     bool isOwner(Player* pl);
     bool sendUnits(int count, Vect2 dest, Unit* outUnit);
 
@@ -41,12 +43,8 @@ public:
     int getCount();
 
 
-
     static void ProcessUints(Vect2 terrLoc, GameWorld& world);
     static void UnlockUpadte(Vect2 terrLoc, GameWorld& world);
-
-
-    //untested !!!
     static Resource CalculateCost(Vect2 statrtLoc, Vect2 destynationLoc, int units, GameWorld& world);
 
 
@@ -79,11 +77,13 @@ class Construction {
         int ConstrLvl = 0;
 
         Construction() = default;
-        Construction(int constrID,Resource profit,Resource cost,int workUnits, int upgrade1Mul,int upgrade2Mul);
+        Construction(int constrID,Resource cost,Resource profit,int workUnits, int upgrade1Mul,int upgrade2Mul);
 
         bool CanUpgrade(Resource & res);
         bool Upgrade(Resource & res);
         bool Tick(TerrainChunk & chunk, int & units);
+
+        void PrintInfo();
 
         ~Construction() = default;
 
@@ -110,16 +110,16 @@ class TerrainChunk
         Unit         StcjonaryUnit;
 
         Construction Constructions[4] = {
-            Construction(1,Resource(100,200,0,500),Resource(0,0,0,400),5,2,10),//farm
+            Construction(1,Resource(100,200,0,0),Resource(0,0,0,400),5,2,10),//farm
             Construction(2,Resource(500,100,500,1000),Resource(0,10,5,0),50,10,100),//mine
-            Construction(3,Resource(200,200,20,100),Resource(20,0,0,0),10,5,20),//swaill
+            Construction(3,Resource(200,200,20,100),Resource(20,0,0,0),10,5,20),//sawmill
             Construction(4,Resource(10000,5000,4000,10000),Resource(0,10,50,100),50,20,100)//willage
         };
 
 
         std::list<Unit> MovingUnits;
 
-        void ConstructionsTick();
+        void TerrainTick();
         bool ToUpadte();
         void OnModifed();
 

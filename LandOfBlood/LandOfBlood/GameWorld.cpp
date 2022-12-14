@@ -11,8 +11,6 @@
 #include "Utils.h"
 
 
-
-
 using namespace std;
 
 
@@ -194,7 +192,7 @@ bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
     int player = FindPlayer(nick);
     if (player != -1) {
 
-        bool res = players[player].setBase(players, *getChunkForUpadte(terrLoc.X, terrLoc.Y));// chunks[terrLoc.X][terrLoc.Y]
+        bool res = players[player].SetBase(players, *getChunkForUpadte(terrLoc.X, terrLoc.Y));// chunks[terrLoc.X][terrLoc.Y]
 
         if (res)
             OnPlayerUpadate(players[player]);
@@ -204,6 +202,18 @@ bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
     // player not found
     return false;
 }
+bool GameWorld::StartGame(std::string nick) {
+    int player = FindPlayer(nick);
+    if (player != -1) {
+        if (worldOwner == player && players[player].getPlayerStatus() == Readay) {
+            gameRunning = true;
+            return true;
+        }
+    }
+    // player not found
+    return false;
+}
+
 void GameWorld::ReportEvent(std::string message, Player* pl) {
     if (pl != nullptr) {
         cout << colorize(YELLOW) << "To " << pl->nick << " event: " << message<< colorize(NC) << endl;
@@ -213,20 +223,55 @@ void GameWorld::ReportEvent(std::string message, Player* pl) {
     }
 }
 void GameWorld::GameTick() {
+    if (!gameRunning)
+        return;
+    
     cout << "--------------- Day:"<<day++<<"---------------" << endl;
     
+    //clear cahe
+    for (size_t x = 0; x < MaxPlayers; x++)
+        players[x].CaheUnitsCount = 0;
+
     for (size_t x = 0; x < WorldSize; x++)
         for (size_t y = 0; y < WorldSize; y++) {
             Unit::ProcessUints(Vect2(x,y), *this);
-            chunks[x][y].ConstructionsTick();
+            chunks[x][y].TerrainTick();
             //process rest
         }
+
+    int anyRedyPlayer = -1;
+    int redyCount = 0;
     //always upadte base
     for(size_t x = 0; x < MaxPlayers; x++)
         if(players[x].getPlayerStatus() == Readay){
+            redyCount++;
+            
+            if (anyRedyPlayer == -1)
+                anyRedyPlayer = x;
+            
             OnPlayerUpadate(players[x]);
             players[x].BaseUpdate();
-        }
+            if (players[x].CaheUnitsCount == 0) {
+                ReportEvent("Player " + players[x].nick + " defeted by starve.");
+                players[x].setPlayerDefeated();
+                continue;
+            }
+
+     }
+
+    if (redyCount == 1) {
+        ReportEvent("Player" + players[anyRedyPlayer].nick + " win the game.");
+        players[anyRedyPlayer].setPlayerDefeated();
+        gameRunning = false;
+        return;
+    } 
+    if (redyCount == 0) {
+        ReportEvent("All fail the game.");
+        gameRunning = false;
+        return;
+    }
+
+
 
     for (size_t x = 0; x < WorldSize; x++)
         for (size_t y = 0; y < WorldSize; y++) {
@@ -249,8 +294,10 @@ void GameWorld::PlayerUpadate(int plId){
     }
 }
 void GameWorld::OnPlayerUpadate(Player & pl){
-        cout << "player " << pl.nick << " needs update" << endl;
+        cout << "player " << pl.nick << " needs update" << " cahe ("<< pl.CaheUnitsCount <<")" << endl;
 }
+
+//in future units can be send before game is running
 bool GameWorld::SendUints(std::string nick,int count, Vect2 terrDes) {
     int player = FindPlayer(nick);
     if (player != -1 && players[player].getPlayerStatus() == Readay) {
@@ -277,6 +324,11 @@ bool  GameWorld::UpgradeConstruction(std::string nick,int id,Vect2 teritory){
         //not player teriory
         if(chunk->TerrainOwner != pl)
             return false;
+       
+        ////palyer base cannot be terated as palce to build
+        if (pl->IsPlayerBase(*chunk))
+            return false;
+
         if(chunk->Constructions[id].Upgrade(*pl->getPlayerResources())){
             OnPlayerUpadate(*pl);
             return true;
@@ -286,142 +338,4 @@ bool  GameWorld::UpgradeConstruction(std::string nick,int id,Vect2 teritory){
     // player not found
     return false;
 }
-
-
-
-//------------------------ Player //------------------------
-bool Player::setBase(Player * players, TerrainChunk & selectedBase) {
-    //base can be selected ony once
-    if (base != nullptr)
-        return false;
-    //start field cannot be the Water
-    if (selectedBase.Type == Water)
-        return false;
-    //terrain own to somebody
-    if(selectedBase.TerrainOwner != nullptr)
-        return false;
-    //check that field is free
-    for (size_t i = 0; i < MaxPlayers; i++)
-        if ((&players[i] != this) && (&selectedBase == players[i].base))
-            return false;
- 
-    //set player base
-    base = &selectedBase;
-    base->GenResoucesAsPlayerBase(this);
-    
-
-    return true;
-}
-
-Player::Player(string name)
-{
-   nick = name;
-}
-
-Player::~Player()
-{
-}
-PlayerStaus Player::getPlayerStatus() {
-    // if player fail
-    if (nick == "")
-        return NonRegistred;
-    if (defeated)
-        return Observer;
-    if(base == nullptr)
-        return NoReady;
-
-    return Readay;
-}
-Vect2 Player::getBaseLoc() {
-    return base->Loc;
-}
-Resource * Player::getPlayerResources(){
-    return &base->NaturalRes;
-}
-void Player::BaseUpdate(){
-    base->OnModifed();
-}
-
-bool Player::SendUnits(GameWorld& world,int count, Vect2 dest) {
-    Resource cost = Unit::CalculateCost(base->Loc, dest, count, world);
-    // we have to affotrt that to go
-    if (base->NaturalRes.canSubstract(cost)) {
-        
-        Unit u;
-        if (base->StcjonaryUnit.sendUnits(count, dest, &u)) {
-            //take cost
-            base->NaturalRes.subResource(cost);
-            // upadte player
-            world.OnPlayerUpadate(*this);
-            // send units and upadte base
-            base->MovingUnits.push_back(u);
-            base->ToUpadte();
-            world.ReportEvent("Units send to " + dest.ToString(), this);
-            return true;
-        }
-    }
-    return false;
-}
-
-/*
-    it looks like SendUnits Back Units are similar, mabe send from territory to territory 
-    will be better function(base including ) 
-    but this in future(maybe not in project release)
-*/
-bool Player::BackUnits(GameWorld& world, int count, Vect2 teritory) {
-    //cannot send form base to base
-    if (base->Loc.CompareValues(teritory))
-        return false;
-    
-    TerrainChunk * chunk = world.getChunkForUpadte(teritory.X, teritory.Y);
-
-    if (chunk->TerrainOwner != this)
-        return false;
-    
-    Resource cost = Unit::CalculateCost(teritory, base->Loc, count, world);
-    
-    /*cout << "costs:" << endl;
-    cost.PrintResources();*/
-
-    // we have to affotrt that to go
-    if (base->NaturalRes.canSubstract(cost)) {
-        Unit u;
-        if (chunk->StcjonaryUnit.sendUnits(count, base->Loc, &u)) {
-            // take cost
-            base->NaturalRes.subResource(cost);
-            // upade player
-            world.OnPlayerUpadate(*this);
-            // upade tertiory
-            chunk->MovingUnits.push_back(u);
-            chunk->ToUpadte();
-            world.ReportEvent("Units send to base " + base->Loc.ToString(), this);
-            return true;
-        }
-    } else {
-        world.ReportEvent("You cant afford for send units from " + teritory.ToString() + " to your base " + base->Loc.ToString(), this);
-    }
-    return false;
-}
-
-bool Player::IsPlayerBase(TerrainChunk& terrain) {
-    if (base == nullptr)
-        return false;
-    return (terrain.Loc.CompareValues(base->Loc));
-}
-bool Player::HasAnyOtherTeriory(GameWorld& world) {
-    for (size_t x = 0; x < WorldSize; x++)
-        for (size_t y = 0; y < WorldSize; y++) {
-            TerrainChunk chunk = world.getChunk(x,y);
-            // if any terrain is owned by player but is not his base succes
-            if (chunk.TerrainOwner == this && !IsPlayerBase(chunk))
-                return true;
-        }
-    return false;
-}
-
-void  Player::setPlayerDefeated() {
-    defeated = true;
-}
-
-
 

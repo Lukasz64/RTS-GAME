@@ -24,6 +24,8 @@
 
         Resource GetDevidedCopy(int devided);
 
+        std::string ToString();
+
 
         void PrintResources();
     };

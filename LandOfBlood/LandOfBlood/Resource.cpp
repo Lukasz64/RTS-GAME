@@ -59,3 +59,8 @@ Resource Resource::GetDevidedCopy(int devider){
         r.resource[i] /= devider;
     return r;
 }
+std::string Resource::ToString() {
+    stringstream str;
+    str << "(W:" << getResource(Wood) << ",S:" << getResource(Stone) << ",G:"<< getResource(Gold) << ",F:"<< getResource(Food) << ")";
+    return str.str();
+}

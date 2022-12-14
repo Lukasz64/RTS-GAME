@@ -9,7 +9,7 @@
 
 using namespace std;
 
- Construction::Construction(int id,Resource p,Resource c,int un, int up1,int up2){
+ Construction::Construction(int id,Resource c,Resource p,int un, int up1,int up2){
     int r[3] = {1, up1, up2};
     for (size_t i = 0; i < MaxConstr; i++)
     {
@@ -61,8 +61,14 @@ using namespace std;
     // to mouch requried
     if(unitCost > units)
         return false;
-
-    Resource prof = profit[ConstrLvl - 1];
+    
+    Resource maxProfit = profit[ConstrLvl - 1];
+    Resource prof = Resource(
+        random(maxProfit.getResource(Wood)  / 2, maxProfit.getResource(Wood)),
+        random(maxProfit.getResource(Stone) / 2, maxProfit.getResource(Stone)),
+        random(maxProfit.getResource(Gold)  / 2, maxProfit.getResource(Gold)),
+        random(maxProfit.getResource(Food)  / 2, maxProfit.getResource(Food))
+    );
     //in future  changing cost in lvl
     Resource digCost = prof.GetDevidedCopy(10);
 
@@ -87,5 +93,14 @@ using namespace std;
 
     //    units -= workUnits[ConstrLvl - 1];       
     return true;
+ }
+ void  Construction::PrintInfo() {
+     //cout << colorize(YELLOW) << "----------------------------------" << endl;
+     string str[] = { "farm","mine","sawmill","willage" };
+     
+     cout << colorize(GREEN) << "Name:" << colorize(WHITE) << str[ConstrID-1] << colorize(RED) << "( Lvl:"<< ConstrLvl << " )" << colorize(NC) << endl;
+
+     //cout << colorize(YELLOW) << "----------------------------------" << colorize(NC)<< endl;
+
  }
  

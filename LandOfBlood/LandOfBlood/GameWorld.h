@@ -6,6 +6,7 @@
 const int WorldSize = 12;
 const int MaxPlayers = 8;
 
+const int CostFoodMul = 1;
 
 class GameWorld
 {
@@ -32,10 +33,13 @@ class GameWorld
         bool         JoinPlayer(std::string nick);
         bool         LeftPlayer(std::string nick);
         bool         SetPlayerBase(std::string nick, Vect2 terrLoc);
+        bool         StartGame(std::string nick);
+
         bool         SendUints(std::string nick, int count, Vect2 terrDes);
         bool         BackToBaseUints(std::string nick, int count, Vect2 backTerritory);
         bool         UpgradeConstruction(std::string nick,int id,Vect2 teritory);
         
+
         //ok in use(true) or to delete(false)
         bool         GetRoomState();
 

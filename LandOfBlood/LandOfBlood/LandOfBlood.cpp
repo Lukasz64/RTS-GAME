@@ -12,7 +12,7 @@
 using namespace std;
 /*
 TODO list
-    GameLogic:
+    GameLogic(compleated):
         + Generate Map
         + Generate Resources
         + Player State Conotrol
@@ -24,11 +24,12 @@ TODO list
         + Proper fight handling(cannot atttack base of antoher player if any toher terory exist)
         + Proper room owner hdling when player disconnects
         + Calaculating units move cost
-        - Calcualating all units food cost by day
-        - Support cost of structures
-        - Support structures on terrains
-        - Build/Upgrade strucutre(counitng cost) Inteeaction
-        - Support structures actions
+        + Calcualating all units food cost by day
+        + Support cost of structures
+        + Support structures on terrains
+        + Build/Upgrade strucutre(counitng cost) Interraction
+        + Support structures actions
+        + Support game end's 
     Server:
         -Support Container wrtie int/string/vect2
         -Support Container read int/string/vect2
@@ -68,6 +69,9 @@ int main()
     game.LeftPlayer("Luki");
     //game.JoinPlayer("Mati");
     game.SetPlayerBase("Mati",Vect2(2,0));
+
+    cout << game.StartGame("Mati") << endl;
+
    // game.LeftPlayer("Mati");
     game.JoinPlayer("Luki");
     game.SetPlayerBase("Luki", Vect2(3, 0));
@@ -85,12 +89,12 @@ int main()
     game.GameTick();
     game.GameTick();
     game.ShowGameOwner();
-
+   
     for (size_t i = 0; i < 20; i++)
         game.GameTick();
 
+    
     cout << game.SendUints("Mati", 100, Vect2(3, 0)) << endl;
-
     cout << game.BackToBaseUints("Mati", 50, Vect2(4, 0)) << endl;
     for (size_t i = 0; i < 20; i++)
         game.GameTick();
@@ -124,6 +128,11 @@ int main()
             TerrainChunk chunk = game.getChunk(x, y);
             chunk.NaturalRes.PrintResources();
             chunk.StcjonaryUnit.PrintUnit();
+            cout << colorize(YELLOW) << "----------------------------------" << endl;
+            for (size_t i = 0; i < 4; i++)
+                chunk.Constructions[i].PrintInfo();
+            cout << colorize(YELLOW) << "----------------------------------" << colorize(NC) << endl;
+
         } else if(command == "tick"){
             int t=0;
             cin >> t;
@@ -155,6 +164,12 @@ int main()
             cin >> nick >> x >> y ;
             cout << game.SetPlayerBase(nick, Vect2(x, y)) << endl;
         }
+        else if (command == "up") {
+            string nick = "";
+            int x, y, c;
+            cin >> nick >> x >> y >> c;
+            cout << game.UpgradeConstruction(nick,c, Vect2(x, y)) << endl;
+        }
         else if (command == "player") {
             game.PrintPlayes();
         }
@@ -177,6 +192,7 @@ int main()
             cout << "player" << endl;
             cout << "map" << endl;
             cout << "trace x1 y1 x2 y2 count" << endl;
+            cout << "up nick x y id" << endl;
         }
 
     }

@@ -29,11 +29,12 @@ private:
 public:
     std::string nick;
     bool isConnected = false;
+    int  CaheUnitsCount = 0;
 
     Player(std::string nick = "");
     ~Player();
 
-    bool setBase(Player* players, TerrainChunk& base);
+    bool SetBase(Player* players, TerrainChunk& base);
     void setPlayerDefeated();
 
     Resource * getPlayerResources();
