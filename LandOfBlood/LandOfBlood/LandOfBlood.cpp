@@ -9,6 +9,7 @@
 #include <vector>
 #include "Utils.h"
 #include "GameWorld.h"
+#include "Container.h"
 
 using namespace std;
 /*
@@ -32,16 +33,15 @@ TODO list
         + Support structures actions
         + Support game end's 
     Server:
-        -Support Container wrtie int/string/vect2
-        -Support Container read int/string/vect2
-        -Support Container nastyfiaction(conatiner in container)
+        +Support Container wrtie int/string/vect2
+        +Support Container read int/string/vect2
+        +Support Container nastyfiaction(conatiner in container)
         -Support GameLogis Thread instacing
         -Support GameLogic Queue coomuniaction
         -Support GameLogis Feedback to users
         -Support RPC(remote procedure control)
         -Support client hadling (join/register/left)
         -Support variable parser(making pacckage)
-        -Support rpc(remote procdres control)
         -Supoort contorl commnads
     Client:
         -Supports connectio/disconnetion form server 
@@ -56,69 +56,51 @@ TODO list
         -full control player by grafical intrafve via rpc 
 */
 
-enum ContainerType{
-    BOOL_ = 0,
-    INT_ = 1,
-    STRING_ = 2,
-    VECT2_ = 3,
-    CONTAINER_ = 4
-};
-
-struct ContainerRecord
-{
-    ContainerType type;
-    int           lenght;  
-    void         *data;
-};
-
-
-class DataContainer
-{
-private:
-    bool modfied = false;
-    vector<ContainerRecord> recordContainer;
-    vector<uint8_t> dataContainer;
-    vector<uint8_t> binaryContainer;
-
-    void addData(ContainerType type,void *data,int lenght);
-    void writeBinary(vector<uint8_t> & outBuffer,void *data,int lenght);
-public:
-    DataContainer(/* args */) = default;
-    ~DataContainer() = default;
-
-    void PushVariable(bool var);
-    void PushVariable(int var);
-    void PushVariable(string var);
-    void PushVariable(Vect2 var);
-};
-void DataContainer::writeBinary(vector<uint8_t> & outBuffer,void *data,int lenght){
-    for (size_t i = 0; i < lenght; i++)
-        outBuffer.push_back(((uint8_t*)data)[i]);
-}
-void DataContainer::addData(ContainerType type,void *data,int lenght){
-    ContainerRecord rec{type,lenght,(void *)dataContainer.size()};
-    recordContainer.push_back(rec);
-    writeBinary(binaryContainer,data,lenght);
-}
-void DataContainer::PushVariable(bool var){
-    addData(BOOL_,&var,1);
-}
-void DataContainer::PushVariable(int var){
-    addData(INT_,&var,sizeof(var));
-}
-void DataContainer::PushVariable(string var){
-    addData(STRING_,&var[0],var.length());
-}
-void DataContainer::PushVariable(Vect2 var){
-    addData(VECT2_,&var,sizeof(var));
-}
-
-
-
-
-
 int main()
 {
+    DataContainer contianer, contianer3;
+    contianer.PushVariable(true);
+    contianer.PushVariable(12);
+
+    contianer3.PushVariable(69);
+    contianer3.PushVariable(69);
+    contianer3.PushVariable((string)"xDxD ===| end");
+   
+    // warnig ! use casting ing sting othwerise coplier wrongily assing the ovloaded function
+    contianer.PushVariable(contianer3);
+
+    contianer.PushVariable(Vect2(2, 9));
+    contianer.PushVariable((string)"Hello string");
+   
+
+    auto ac1 = contianer.GetBool(0);
+    auto ac2 = contianer.GetInt(1);
+    auto ac3 = contianer.GetDataContainer(2);
+    auto ac3a = ac3.GetInt(0);
+    auto ac3b = ac3.GetInt(1);
+    auto ac3c = ac3.GetString(2);
+
+    auto ac4 = contianer.GetVect2(3);
+    auto ac5 = contianer.GetString(4);
+
+
+
+    vector<uint8_t> res55 = contianer.Serialize();
+
+    DataContainer contianer2(res55);
+
+    auto a2c1 = contianer2.GetBool(0);
+    auto a2c2 = contianer2.GetInt(1);
+    auto a2c3 = contianer2.GetDataContainer(2);
+    auto a2c3a = a2c3.GetInt(0);
+    auto a2c3b = a2c3.GetInt(1);
+    auto a2c3c = a2c3.GetString(2);
+
+    auto a2c5 = contianer2.GetVect2(3);
+    auto a2c6 = contianer2.GetString(4);
+
+
+
     GameWorld game("Game room",987654321);
     Construction sonstr(1,Resource(1,1,1,1),Resource(2,2,4,4),10,2,5);
     srand(time(NULL));
