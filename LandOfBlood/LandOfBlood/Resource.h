@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
     enum ResourceType
     {
         Wood = 0,

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <random>
 #include <ctime>
+#include <vector>
 #include "Utils.h"
 #include "GameWorld.h"
 
@@ -55,9 +56,70 @@ TODO list
         -full control player by grafical intrafve via rpc 
 */
 
+enum ContainerType{
+    BOOL_ = 0,
+    INT_ = 1,
+    STRING_ = 2,
+    VECT2_ = 3,
+    CONTAINER_ = 4
+};
+
+struct ContainerRecord
+{
+    ContainerType type;
+    int           lenght;  
+    void         *data;
+};
+
+
+class DataContainer
+{
+private:
+    bool modfied = false;
+    vector<ContainerRecord> recordContainer;
+    vector<uint8_t> dataContainer;
+    vector<uint8_t> binaryContainer;
+
+    void addData(ContainerType type,void *data,int lenght);
+    void writeBinary(vector<uint8_t> & outBuffer,void *data,int lenght);
+public:
+    DataContainer(/* args */) = default;
+    ~DataContainer() = default;
+
+    void PushVariable(bool var);
+    void PushVariable(int var);
+    void PushVariable(string var);
+    void PushVariable(Vect2 var);
+};
+void DataContainer::writeBinary(vector<uint8_t> & outBuffer,void *data,int lenght){
+    for (size_t i = 0; i < lenght; i++)
+        outBuffer.push_back(((uint8_t*)data)[i]);
+}
+void DataContainer::addData(ContainerType type,void *data,int lenght){
+    ContainerRecord rec{type,lenght,(void *)dataContainer.size()};
+    recordContainer.push_back(rec);
+    writeBinary(binaryContainer,data,lenght);
+}
+void DataContainer::PushVariable(bool var){
+    addData(BOOL_,&var,1);
+}
+void DataContainer::PushVariable(int var){
+    addData(INT_,&var,sizeof(var));
+}
+void DataContainer::PushVariable(string var){
+    addData(STRING_,&var[0],var.length());
+}
+void DataContainer::PushVariable(Vect2 var){
+    addData(VECT2_,&var,sizeof(var));
+}
+
+
+
+
+
 int main()
 {
-    GameWorld game("Game room",123434);
+    GameWorld game("Game room",987654321);
     Construction sonstr(1,Resource(1,1,1,1),Resource(2,2,4,4),10,2,5);
     srand(time(NULL));
 
@@ -94,7 +156,7 @@ int main()
         game.GameTick();
 
     
-    cout << game.SendUints("Mati", 100, Vect2(3, 0)) << endl;
+    cout << game.SendUints("Mati", 100, Vect2(3, 1)) << endl;
     cout << game.BackToBaseUints("Mati", 50, Vect2(4, 0)) << endl;
     for (size_t i = 0; i < 20; i++)
         game.GameTick();
