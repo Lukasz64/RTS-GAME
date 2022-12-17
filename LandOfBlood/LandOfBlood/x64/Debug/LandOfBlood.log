@@ -1,3 +1,7 @@
 ﻿  LandOfBlood.cpp
-D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\LandOfBlood.cpp(106,15): warning C4244: "argument": konwersja z "time_t" do "unsigned int", możliwa utrata danych
+D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\LandOfBlood.cpp(79,1): warning C4267: "inicjowanie": konwersja z "size_t" do "int", możliwa utrata danych
+D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\LandOfBlood.cpp(210,39): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\LandOfBlood.cpp(210,30): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\LandOfBlood.cpp(212,29): warning C4244: "argument": konwersja z "double" do "int", możliwa utrata danych
+D:\Git\RTS-GAME\LandOfBlood\LandOfBlood\LandOfBlood.cpp(266,15): warning C4244: "argument": konwersja z "time_t" do "unsigned int", możliwa utrata danych
   LandOfBlood.vcxproj -> D:\Git\RTS-GAME\LandOfBlood\x64\Debug\LandOfBlood.exe
