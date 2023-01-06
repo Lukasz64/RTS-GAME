@@ -33,5 +33,8 @@ enum COLORS {
  };
 
 const std::string colorize(int font, int back = -1, int style = -1);
-void ReportError(std::string errmsg);
 
+void InitLogs(std::string fileName);
+void ReportError(std::string errmsg, bool isCritical = false,int retunCode = -1);
+void ReportWarning(std::string warnmsg);
+void ReportInfo(std::string infomsg);

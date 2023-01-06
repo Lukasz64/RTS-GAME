@@ -1,0 +1,10 @@
+[2023-01-06.02:27:47 INFO]:Server lounching...
+[2023-01-06.02:27:47 INFO]:Load settings ok
+[2023-01-06.02:27:47 INFO]:Lounch Server at 127.0.0.1:1333
+[2023-01-06.02:28:48 INFO]:Server lounching...
+[2023-01-06.02:28:48 INFO]:Load settings ok
+[2023-01-06.02:28:48 INFO]:Lounch Server at 127.0.0.1:133399
+[2023-01-06.02:28:48 ERROR]:Incorrect port provided: 133399
+[2023-01-06.02:29:37 INFO]:Server lounching...
+[2023-01-06.02:29:37 INFO]:Load settings ok
+[2023-01-06.02:29:37 INFO]:Lounch Server at 127.0.0.1:1333

@@ -2,6 +2,19 @@
 //
 
 #include <iostream>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/epoll.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <error.h>
+#include <netdb.h>
+#include <unordered_set>
+#include <signal.h>
+
+#include <cstdio>
 #include <string>
 #include <sstream>
 #include <random>
@@ -10,6 +23,16 @@
 #include "Utils.h"
 #include "GameWorld.h"
 #include "Container.h"
+#include <iostream> 
+#include <fstream>
+#include <map>
+#include "NetCore.h"
+
+
+
+
+
+
 
 using namespace std;
 /*
@@ -55,11 +78,36 @@ TODO list
         -sendig resource upadte(worki ok on srver and client)
         -full control player by grafical intrafve via rpc 
 */
+std::map<string, string> settings = {
+        { "adress", "127.0.01" },
+        { "port", "1701" }
+};
 
 
 
 int main()
 {
+    InitLogs("SeverLogs.txt");
+    ReportInfo("Server lounching...");
+    
+    ifstream settingsFile("ServerConfig.txt");
+    while (!settingsFile.eof())
+    {
+        string key,val;
+        settingsFile >> key >> val;
+        settings[key] = val;
+        cout << colorize(YELLOW)  << key <<":" << colorize(MAGENTA) << val << colorize(NC)<< endl;
+    }
+    ReportInfo("Load settings ok");
+    
+    NetCore core(settings["adress"],settings["port"]);
+    core.LaunchServer();
+
+    cout <<colorize(GREEN)<< "Hello world!" << endl;
+    while (1)
+    {
+        /* code */
+    }
     
 }
 
