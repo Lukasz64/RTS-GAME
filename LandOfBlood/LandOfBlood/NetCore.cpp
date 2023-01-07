@@ -8,6 +8,8 @@
 #include <error.h>
 #include <netdb.h>
 #include <sys/epoll.h>
+#include <string>
+#include <sstream>
 #include <unordered_set>
 #include <signal.h>
 #include "Utils.h"
@@ -29,6 +31,44 @@ void setReuseAddr(int sock){
     if(res) 
         ReportError("setsockopt failed",true,-1);
 }
+
+class Client : public EpollHandler {
+    int clientDescriptor;
+    NetCore * core;
+public:
+    Client(int fd,NetCore * ncore) : clientDescriptor(fd),core(ncore) {
+        epoll_event ee {EPOLLIN|EPOLLRDHUP, {.ptr=this}};
+        epoll_ctl(core->getEpoll(), EPOLL_CTL_ADD, clientDescriptor, &ee);
+    }
+    virtual ~Client(){
+        epoll_ctl(core->getEpoll(), EPOLL_CTL_DEL, clientDescriptor, nullptr);
+        shutdown(clientDescriptor, SHUT_RDWR);
+        close(clientDescriptor);
+    }
+    int fd() const {return clientDescriptor;}
+    virtual void handleEvent(uint32_t events) override {
+        if(events & EPOLLIN) {
+            char buffer[256];
+            ssize_t count = read(clientDescriptor, buffer, 256);
+            //recv(sock,buff,size,flas) 
+        }
+        if(events & ~EPOLLIN){
+            remove();
+        }
+    }
+    void write(char * buffer, int count){
+        if(count != ::write(clientDescriptor, buffer, count))
+            remove();
+        
+    }
+    void remove() {
+        stringstream str;
+        str << "Remove client " << clientDescriptor;
+        ReportInfo(str.str());
+        core->remClient(this);
+        delete this;
+    }
+};
 
 
 
@@ -64,6 +104,30 @@ void NetCore::LaunchServer(){
 
     epollFd = epoll_create1(0);
 }
+void NetCore::handleEvent(uint32_t events){
+    if(events & EPOLLIN){
+            sockaddr_in clientAddr{};
+            socklen_t clientAddrSize = sizeof(clientAddr);
+            
+            auto clientFd = accept(serverFd, (sockaddr*) &clientAddr, &clientAddrSize);
+            
+            if(clientFd == -1){
+                ReportWarning("Accept client failed");
+                return;
+            }
+            stringstream msg;    
+            msg << "new connection from:" << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << "(fd:" << clientFd << ")";   
+            ReportInfo(msg.str());    
+
+            clients.insert(new Client(clientFd,this));
+        }
+    if(events & ~EPOLLIN){
+        ReportError("Critical fail of handle EPOLL server shut dow...",true,-2);
+    }
+}
+
+
+
 
 
 NetCore::~NetCore()
