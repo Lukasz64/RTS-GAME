@@ -121,7 +121,7 @@ bool GameWorld::GetRoomState() {
 
 
 //
-bool GameWorld::JoinPlayer(string nick)
+bool GameWorld::JoinPlayer(string nick,void * client)
 {
     //dont accept empty nick
     if(nick == "")
@@ -134,14 +134,16 @@ bool GameWorld::JoinPlayer(string nick)
         else {
             //come back to game          
             players[palyerSlot].isConnected = true;
+            players[palyerSlot].clientIstnace = client;
             PlayerUpadate(palyerSlot);
             return true;
         }
     }
     int freeSlot = FindFreePlayerSlot();
     if (freeSlot != -1) {
-        players[freeSlot] = Player(nick);
+        players[freeSlot] = Player(nick,client);
         players[freeSlot].isConnected = true;
+
         if(worldOwner == -1)
             worldOwner = freeSlot;
 
@@ -158,7 +160,6 @@ void GameWorld::ShowGameOwner(){
     } else {
         cout << "to delete room" << endl;
     }
-
 }
 
 //
@@ -230,7 +231,7 @@ void GameWorld::GameTick() {
     
     //clear cahe
     for (size_t x = 0; x < MaxPlayers; x++)
-        players[x].CaheUnitsCount = 0;
+        players[x].caheUnitsCount = 0;
 
     for (size_t x = 0; x < WorldSize; x++)
         for (size_t y = 0; y < WorldSize; y++) {
@@ -251,7 +252,7 @@ void GameWorld::GameTick() {
             
             OnPlayerUpadate(players[x]);
             players[x].BaseUpdate();
-            if (players[x].CaheUnitsCount == 0) {
+            if (players[x].caheUnitsCount == 0) {
                 ReportEvent("Player " + players[x].nick + " defeted by starve.");
                 players[x].setPlayerDefeated();
                 continue;
@@ -294,7 +295,7 @@ void GameWorld::PlayerUpadate(int plId){
     }
 }
 void GameWorld::OnPlayerUpadate(Player & pl){
-        cout << "player " << pl.nick << " needs update" << " cahe ("<< pl.CaheUnitsCount <<")" << endl;
+        cout << "player " << pl.nick << " needs update" << " cahe ("<< pl.caheUnitsCount <<")" << endl;
 }
 
 //in future units can be send before game is running

@@ -19,9 +19,10 @@ class GameWorld
         int          worldOwner = -1;
         std::string  name = "";
 
-        int FindPlayer(std::string nick);
-        int FindFreePlayerSlot();
-        int FindActiveConnectedPlayer();
+        int       FindPlayer(std::string nick);
+        int       FindFreePlayerSlot();
+        int       FindActiveConnectedPlayer();
+        void      PlayerUpadate(int plID);
 
     public:
         GameWorld(std::string worldName,unsigned int seed = 12);
@@ -30,7 +31,8 @@ class GameWorld
         TerrainChunk  getChunk(int x, int y);
         TerrainChunk* getChunkForUpadte(int x, int y, bool modfiMark = true);
 
-        bool         JoinPlayer(std::string nick);
+        //players action
+        bool         JoinPlayer(std::string nick,void * client = nullptr);
         bool         LeftPlayer(std::string nick);
         bool         SetPlayerBase(std::string nick, Vect2 terrLoc);
         bool         StartGame(std::string nick);
@@ -45,13 +47,12 @@ class GameWorld
 
 
         //if nullptr to all players
-        void         OnChunkUpadte(TerrainChunk & chunk);
-        void         PlayerUpadate(int plID);
-        void         OnPlayerUpadate(Player & pl);
-        void         ReportEvent(std::string message, Player* pl = nullptr);
-        void         GameTick();
+        virtual void         OnChunkUpadte(TerrainChunk & chunk);       
+        virtual void         OnPlayerUpadate(Player & pl);
+        virtual void         ReportEvent(std::string message, Player* pl = nullptr);
+        virtual void         GameTick();
 
-
+        // server debug
         void PrintMap();
         void PrintPlayes();
         void ShowGameOwner();

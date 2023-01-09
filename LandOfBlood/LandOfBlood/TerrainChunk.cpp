@@ -106,7 +106,7 @@ void TerrainChunk::TerrainTick(){
         // eleimente form 0 to 5 units
         StcjonaryUnit.Substract(random(0, 5));
     }
-    TerrainOwner->CaheUnitsCount += StcjonaryUnit.getCount();
+    TerrainOwner->caheUnitsCount += StcjonaryUnit.getCount();
 }
 
 

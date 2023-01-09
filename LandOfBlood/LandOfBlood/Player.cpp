@@ -14,9 +14,10 @@
 using namespace std;
 
 //------------------------ Player //------------------------
-Player::Player(string name)
+Player::Player(string name,void * client)
 {
     nick = name;
+    clientIstnace = client;
 }
 
 Player::~Player()

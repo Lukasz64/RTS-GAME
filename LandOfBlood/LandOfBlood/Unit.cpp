@@ -162,7 +162,7 @@ void Unit::ProcessUnit(GameWorld& world) {
         return;
 
     // take care of movi units
-    owner->CaheUnitsCount += count;
+    owner->caheUnitsCount += count;
     updated = true;
 
     //delay on move

@@ -1,4 +1,7 @@
 #include <cstdlib>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <cstdio>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -7,7 +10,7 @@
 #include <errno.h>
 #include <error.h>
 #include <netdb.h>
-#include <sys/epoll.h>
+
 #include <string>
 #include <sstream>
 #include <unordered_set>
@@ -41,6 +44,10 @@ public:
         epoll_ctl(core->getEpoll(), EPOLL_CTL_ADD, clientDescriptor, &ee);
     }
     virtual ~Client(){
+        stringstream msg;    
+        msg << "new connection(fd:" << clientDescriptor << ") closed";   
+        ReportInfo(msg.str()); 
+        
         epoll_ctl(core->getEpoll(), EPOLL_CTL_DEL, clientDescriptor, nullptr);
         shutdown(clientDescriptor, SHUT_RDWR);
         close(clientDescriptor);
@@ -77,7 +84,7 @@ NetCore::NetCore(string & ip,string & p)
     port = p;
     address = ip;
 }
-void NetCore::LaunchServer(){
+void NetCore::InitalizeServer(){
     ReportInfo("Lounch Server at "+address + ":" + port);
     uint16_t p = readPort(port);
 
@@ -103,7 +110,52 @@ void NetCore::LaunchServer(){
         ReportError("Srver listen failed",true,-1);
 
     epollFd = epoll_create1(0);
+
+    eventHandle.events = EPOLLIN;
+    eventHandle.data = {.ptr = this};
+
+    epoll_ctl(epollFd, EPOLL_CTL_ADD, serverFd, &eventHandle);
+
+
 }
+void NetCore::EpollThread(){
+    //handle all eppols
+    while (1)
+    {
+        if(-1 == epoll_wait(epollFd, &eventHandle, 1, -1)) {
+            ReportError("epoll_wait fail", true, -5);
+        }
+        serverRequests.push(eventHandle);
+    }
+}
+void NetCore::MainThread(){ 
+    while (1)
+    {
+        if(!serverRequests.isEmpty()){
+            epoll_event proccsedEvent = serverRequests.pop();
+            ((EpollHandler*)proccsedEvent.data.ptr)->handleEvent(proccsedEvent.events);
+        }
+        //sth is no ok ? or linux breaks
+    }
+    
+}
+
+void NetCore::LaunchServer(){ 
+    pollThread = thread(
+         [this] { 
+            this->EpollThread(); 
+            ReportWarning("Main tgheread closed");
+        }
+    );
+    mainServerThread = thread(
+        [this]  { 
+            this->MainThread(); 
+            ReportWarning("Main tgheread closed");
+        }
+    );
+}
+
+
 void NetCore::handleEvent(uint32_t events){
     if(events & EPOLLIN){
             sockaddr_in clientAddr{};

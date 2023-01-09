@@ -101,7 +101,11 @@ int main()
     ReportInfo("Load settings ok");
     
     NetCore core(settings["adress"],settings["port"]);
+    ReportInfo("Iniitalize Server..");
+    core.InitalizeServer(); 
+    ReportInfo("Lunch Server Threads..");
     core.LaunchServer();
+    ReportInfo("Done.");
 
     cout <<colorize(GREEN)<< "Hello world!" << endl;
     while (1)

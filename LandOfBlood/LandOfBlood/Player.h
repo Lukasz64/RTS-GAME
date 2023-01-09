@@ -29,9 +29,13 @@ private:
 public:
     std::string nick;
     bool isConnected = false;
-    int  CaheUnitsCount = 0;
+    
+    
+    int  caheUnitsCount = 0;
+    //copletyly separtion form network logic
+    void * clientIstnace = nullptr;
 
-    Player(std::string nick = "");
+    Player(std::string nick = "",void * client = nullptr);
     ~Player();
 
     bool SetBase(Player* players, TerrainChunk& base);
