@@ -1,2 +1,3 @@
 recv(sock,buff,size,flas) -> flags NOBLOCK ! MSG_WAITALL
 nc -v 192.168.202.112 11053
+nc -v 127.0.01 1333

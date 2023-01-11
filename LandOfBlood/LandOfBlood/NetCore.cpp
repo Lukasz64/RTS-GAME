@@ -38,14 +38,16 @@ void setReuseAddr(int sock){
 class Client : public EpollHandler {
     int clientDescriptor;
     NetCore * core;
+    epoll_event ee;
 public:
     Client(int fd,NetCore * ncore) : clientDescriptor(fd),core(ncore) {
-        epoll_event ee {EPOLLIN|EPOLLRDHUP, {.ptr=this}};
+        ee.events = EPOLLIN|EPOLLRDHUP;
+        ee.data = {.ptr = this};
         epoll_ctl(core->getEpoll(), EPOLL_CTL_ADD, clientDescriptor, &ee);
     }
     virtual ~Client(){
         stringstream msg;    
-        msg << "new connection(fd:" << clientDescriptor << ") closed";   
+        msg << "connection(fd:" << clientDescriptor << ") closed";   
         ReportInfo(msg.str()); 
         
         epoll_ctl(core->getEpoll(), EPOLL_CTL_DEL, clientDescriptor, nullptr);
@@ -54,9 +56,10 @@ public:
     }
     int fd() const {return clientDescriptor;}
     virtual void handleEvent(uint32_t events) override {
+        ReportInfo("Cleint hangle evnet");
         if(events & EPOLLIN) {
-            char buffer[256];
-            ssize_t count = read(clientDescriptor, buffer, 256);
+            //char buffer[256];
+            //ssize_t count = read(clientDescriptor, buffer, 256);
             //recv(sock,buff,size,flas) 
         }
         if(events & ~EPOLLIN){
@@ -83,6 +86,7 @@ NetCore::NetCore(string & ip,string & p)
 {
     port = p;
     address = ip;
+    serverRequests.maxSize = 1;
 }
 void NetCore::InitalizeServer(){
     ReportInfo("Lounch Server at "+address + ":" + port);
@@ -126,6 +130,7 @@ void NetCore::EpollThread(){
             ReportError("epoll_wait fail", true, -5);
         }
         serverRequests.push(eventHandle);
+        ReportInfo("Epool action");
     }
 }
 void NetCore::MainThread(){ 
@@ -133,8 +138,11 @@ void NetCore::MainThread(){
     {
         if(!serverRequests.isEmpty()){
             epoll_event proccsedEvent = serverRequests.pop();
+            cout << "Handle:" << proccsedEvent.data.ptr << endl;
             ((EpollHandler*)proccsedEvent.data.ptr)->handleEvent(proccsedEvent.events);
+            
         }
+        //ReportInfo("Epool execution");
         //sth is no ok ? or linux breaks
     }
     
@@ -160,6 +168,7 @@ void NetCore::handleEvent(uint32_t events){
     if(events & EPOLLIN){
             sockaddr_in clientAddr{};
             socklen_t clientAddrSize = sizeof(clientAddr);
+            cout << "Accept ?"<< endl;
             
             auto clientFd = accept(serverFd, (sockaddr*) &clientAddr, &clientAddrSize);
             
