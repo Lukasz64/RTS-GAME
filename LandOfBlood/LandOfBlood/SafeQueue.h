@@ -62,7 +62,7 @@ class SafeEleemnt{
 
         }
         void push(T val){
-                lc.lock();
+                while (!isEmpty);               
 
                 mut.lock();                   
                 elem = val;
@@ -70,9 +70,7 @@ class SafeEleemnt{
                 mut.unlock();
         }
 
-        T pop(){
-                lc.unlock();
-                
+        T pop(){              
                 mut.lock();     
                 T res = elem;
                 isEmpty = true;
@@ -80,7 +78,7 @@ class SafeEleemnt{
                 return res;
         }
 
-        bool isEmpty(){
+        bool empty(){
                 mut.lock(); 
                 bool q = isEmpty;
                 mut.unlock();

@@ -56,10 +56,16 @@ public:
     }
     int fd() const {return clientDescriptor;}
     virtual void handleEvent(uint32_t events) override {
-        ReportInfo("Cleint hangle evnet");
         if(events & EPOLLIN) {
-            //char buffer[256];
-            //ssize_t count = read(clientDescriptor, buffer, 256);
+            char buffer[256];
+            ssize_t count = read(clientDescriptor, buffer, 256);
+            RpcCall call {
+                this,
+                "test",
+                DataContainer()
+            };
+
+            core->clientRequests.push(call);
             //recv(sock,buff,size,flas) 
         }
         if(events & ~EPOLLIN){
@@ -86,7 +92,7 @@ NetCore::NetCore(string & ip,string & p)
 {
     port = p;
     address = ip;
-    serverRequests.maxSize = 1;
+    //serverRequests.maxSize = 1;
 }
 void NetCore::InitalizeServer(){
     ReportInfo("Lounch Server at "+address + ":" + port);
@@ -129,17 +135,16 @@ void NetCore::EpollThread(){
         if(-1 == epoll_wait(epollFd, &eventHandle, 1, -1)) {
             ReportError("epoll_wait fail", true, -5);
         }
-        serverRequests.push(eventHandle);
+        ((EpollHandler*)eventHandle.data.ptr)->handleEvent(eventHandle.events);
         ReportInfo("Epool action");
     }
 }
 void NetCore::MainThread(){ 
     while (1)
     {
-        if(!serverRequests.isEmpty()){
-            epoll_event proccsedEvent = serverRequests.pop();
-            cout << "Handle:" << proccsedEvent.data.ptr << endl;
-            ((EpollHandler*)proccsedEvent.data.ptr)->handleEvent(proccsedEvent.events);
+        if(!clientRequests.isEmpty()){
+            RpcCall proccsedEvent = clientRequests.pop();
+            ReportInfo("Epool execution");         
             
         }
         //ReportInfo("Epool execution");
@@ -168,7 +173,6 @@ void NetCore::handleEvent(uint32_t events){
     if(events & EPOLLIN){
             sockaddr_in clientAddr{};
             socklen_t clientAddrSize = sizeof(clientAddr);
-            cout << "Accept ?"<< endl;
             
             auto clientFd = accept(serverFd, (sockaddr*) &clientAddr, &clientAddrSize);
             

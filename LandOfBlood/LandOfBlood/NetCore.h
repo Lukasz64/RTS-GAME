@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <thread>         // std::thread
 #include "SafeQueue.h"
+#include "Container.h"
 
 class EpollHandler {
     public:
@@ -13,6 +14,12 @@ class EpollHandler {
     virtual void handleEvent(uint32_t events) = 0;
 };
 class Client;
+
+struct RpcCall {
+    Client *      sender;
+    std::string   rpcName;
+    DataContainer container;
+};
 
 class NetCore : public EpollHandler
 {
@@ -26,13 +33,16 @@ private:
     std::thread  pollThread;
     std::thread  mainServerThread;
 
-    SafeQueue<epoll_event> serverRequests;
+    //SafeEleemnt<epoll_event> event;
 
     int serverFd;
     int epollFd;
 
 
 public:
+
+    SafeQueue<RpcCall> clientRequests;
+
     NetCore(std::string & ip,std::string & port);
     ~NetCore();
 
