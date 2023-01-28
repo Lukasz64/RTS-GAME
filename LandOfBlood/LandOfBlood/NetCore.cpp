@@ -39,7 +39,13 @@ class Client : public EpollHandler {
     int clientDescriptor;
     NetCore * core;
     epoll_event ee;
+
+    uint8_t reciveBuffer[ClientReciveBuffer];
+    size_t  recivedDataSize = 0;      
+    size_t  expectedPacket = 0;
 public:
+    string cilentName = "";
+
     Client(int fd,NetCore * ncore) : clientDescriptor(fd),core(ncore) {
         ee.events = EPOLLIN|EPOLLRDHUP;
         ee.data = {.ptr = this};
@@ -55,18 +61,42 @@ public:
         close(clientDescriptor);
     }
     int fd() const {return clientDescriptor;}
-    virtual void handleEvent(uint32_t events) override {
+    virtual void handleEvent(uint32_t events) override {    
         if(events & EPOLLIN) {
-            char buffer[256];
-            ssize_t count = read(clientDescriptor, buffer, 256);
-            RpcCall call {
-                this,
-                "test",
-                DataContainer()
-            };
+            //char buffer[256];
 
-            core->clientRequests.push(call);
-            //recv(sock,buff,size,flas) 
+            recivedDataSize += read(clientDescriptor, &reciveBuffer[recivedDataSize], !expectedPacket  ? sizeof(int) : (expectedPacket - recivedDataSize));
+
+            cout << colorize( YELLOW ) << "Read:"<< recivedDataSize << endl;
+            
+            if(!expectedPacket && recivedDataSize >= sizeof(int)){
+                recivedDataSize = 0;
+                expectedPacket = *(int *)reciveBuffer;
+                cout << colorize( GREEN ) << "Incomig pocket !" << endl;
+                cout << colorize( YELLOW ) << "SET:"<< expectedPacket << endl;
+                if(expectedPacket > ClientReciveBuffer){
+                    ReportError("To lareg packet-exception");
+                    expectedPacket = 0;
+                }
+
+            }  else if(expectedPacket && recivedDataSize >= expectedPacket){
+               /* cout << colorize(GREEN) << "TestSIG:";
+                for (size_t i = 0; i < recivedDataSize; i++)
+                printf("%X-",(int)reciveBuffer[i]);
+                
+                cout << endl;*/
+                
+                DataContainer call(reciveBuffer,expectedPacket);
+                RpcCall rcall {
+                    this,
+                    call.GetString(0),
+                    call.GetDataContainer(1)
+                };
+
+                core->clientRequests.push(rcall);
+                expectedPacket = 0;
+                recivedDataSize = 0;
+            }
         }
         if(events & ~EPOLLIN){
             remove();
@@ -144,7 +174,7 @@ void NetCore::MainThread(){
     {
         if(!clientRequests.isEmpty()){
             RpcCall proccsedEvent = clientRequests.pop();
-            ReportInfo("Epool execution");         
+            ReportInfo("Epool execution:" + proccsedEvent.rpcName);         
             
         }
         //ReportInfo("Epool execution");

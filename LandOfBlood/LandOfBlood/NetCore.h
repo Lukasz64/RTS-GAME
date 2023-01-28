@@ -8,6 +8,8 @@
 #include "SafeQueue.h"
 #include "Container.h"
 
+const int ClientReciveBuffer = 8 * 1024; //reach buffer 8KB
+
 class EpollHandler {
     public:
     virtual ~EpollHandler(){}
