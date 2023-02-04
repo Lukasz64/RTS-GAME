@@ -57,6 +57,9 @@
         "ratio": "cpp",
         "semaphore": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "epoll.h": "c",
+        "utils.h": "c",
+        "cstring": "cpp"
     }
 }

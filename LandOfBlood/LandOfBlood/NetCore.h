@@ -3,12 +3,18 @@
 #include <arpa/inet.h>
 #include <sys/epoll.h>
 #include <string>
+#include <vector>
 #include <unordered_set>
 #include <thread>         // std::thread
 #include "SafeQueue.h"
 #include "Container.h"
+#include "GameWorld.h"
+
 
 const int ClientReciveBuffer = 8 * 1024; //reach buffer 8KB
+
+
+
 
 class EpollHandler {
     public:
@@ -23,10 +29,18 @@ struct RpcCall {
     DataContainer container;
 };
 
+
+class GameRoom : public GameWorld {
+    public:
+    GameRoom(std::string name) : GameWorld(name,rand()){}
+    void ProvessEvent(RpcCall & call);
+};
+
 class NetCore : public EpollHandler
 {
 private:
     std::unordered_set<Client*> clients;
+    std::vector<GameRoom> rooms;
     
     std::string address,port;
     sockaddr_in serverAddr;
@@ -40,6 +54,7 @@ private:
     int serverFd;
     int epollFd;
 
+    void ProvessEvent(RpcCall & event );
 
 public:
 
@@ -49,7 +64,7 @@ public:
     ~NetCore();
 
     void EpollThread();
-    void MainThread();
+    void MainThread();   
 
     int getEpoll(){ return epollFd; }
     void remClient(Client * client){ clients.erase(client);}

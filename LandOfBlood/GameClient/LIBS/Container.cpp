@@ -33,7 +33,7 @@ void DataContainer::writeBinary(vector<uint8_t>& outBuffer, void* data, int leng
 void DataContainer::readBinary(vector<uint8_t>& inBuffer, int startIndex, void* data, int lenght) {
     #if CONTINER_MODE == SAFE
         if((startIndex+lenght) > inBuffer.size()){
-            ReportError("Container corrutpion error, index-out-of-range");
+            ReportError("Container corrutpion error, index-out-of-range(readBinary)");
             return;
         }
     #endif
@@ -112,7 +112,7 @@ string DataContainer::GetString(int index) {
     if (!checkType("GetString", STRING_, index))
         return res;
 
-    res = string(recordContainer[index].lenght + 1, '\0');
+    res = string(recordContainer[index].lenght, '\0');
 
     readBinary(dataContainer, recordContainer[index].dataPTR, &res[0], recordContainer[index].lenght);
     return res;
@@ -139,7 +139,7 @@ DataContainer  DataContainer::GetDataContainer(int index) {
     //res.writeBinary(res.binaryContainer, &dataContainer[recordContainer[index].dataPTR], recordContainer[index].lenght);
     if(recordContainer[index].lenght > 0){
         #if CONTINER_MODE == SAFE
-            if((recordContainer[index].dataPTR + recordContainer[index].lenght) < dataContainer.size()){         
+            if(recordContainer[index].lenght > 0 && (recordContainer[index].dataPTR + recordContainer[index].lenght) <= dataContainer.size()){         
         #endif    
                 res.binaryContainer.insert(
                     std::end(res.binaryContainer),
@@ -149,7 +149,8 @@ DataContainer  DataContainer::GetDataContainer(int index) {
                 res.DeSerialize();        
         #if CONTINER_MODE == SAFE
             } else {
-                ReportError("Container corrutpion error, index-out-of-range");
+                cout <<recordContainer[index].dataPTR << "," <<recordContainer[index].lenght << "," << dataContainer.size() << endl;
+                ReportError("Container corrutpion error, index-out-of-range(GetDataContainer)");
             }
         #endif
     } 
@@ -188,7 +189,7 @@ void DataContainer::DeSerialize() {
     
     #if CONTINER_MODE == SAFE
         if(binarIdx >= binaryContainer.size()){
-            ReportError("Container corrutpion error, index-out-of-range(binary data)");
+            ReportError("Container corrutpion error, index-out-of-range(DeSerialize)");
             return;
         }
     #endif

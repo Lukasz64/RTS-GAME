@@ -59,21 +59,21 @@ TODO list
         +Support Container wrtie int/string/vect2
         +Support Container read int/string/vect2
         +Support Container nastyfiaction(conatiner in container)
-        -Support GameLogis Thread instacing
-        -Support GameLogic Queue coomuniaction
+        +Support Server Threads
+        -Support GameLogic coomuniaction
         -Support GameLogis Feedback to users
-        -Support RPC(remote procedure control)
-        -Support client hadling (join/register/left)
-        -Support variable parser(making pacckage)
+        +Support RPC(remote procedure control)
+        +Support client hadling (join/register/left)
+        +Support variable parser(making pacckage)
         -Supoort contorl commnads
     Client:
         -Supports connectio/disconnetion form server 
-        -Supports rpc like srver
+        +Supports rpc like srver
         -display and upadte resources bar
         -display and upadte map (units nad structs)
         -display interface to conotrl game
     Integation:
-        -registrtion protoocol(pass nick before join)
+        +registrtion protoocol(pass nick before join)
         -sendig map upadte(worki ok on srver and client)
         -sendig resource upadte(worki ok on srver and client)
         -full control player by grafical intrafve via rpc 

@@ -17,14 +17,14 @@ class GameWorld
         
         bool         gameRunning = false;   
         int          worldOwner = -1;
-        std::string  name = "";
-
+        
         int       FindPlayer(std::string nick);
         int       FindFreePlayerSlot();
         int       FindActiveConnectedPlayer();
         void      PlayerUpadate(int plID);
 
     public:
+        std::string  name = "";
         GameWorld(std::string worldName,unsigned int seed = 12);
         ~GameWorld();
 
