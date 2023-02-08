@@ -32,6 +32,7 @@ public:
 
     bool isOwner(Player* pl);
     bool sendUnits(int count, Vect2 dest, Unit* outUnit);
+    int  getOwnerID();
 
     void PrintUnit();
 

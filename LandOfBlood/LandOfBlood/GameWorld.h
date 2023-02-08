@@ -30,6 +30,7 @@ class GameWorld
 
         TerrainChunk  getChunk(int x, int y);
         TerrainChunk* getChunkForUpadte(int x, int y, bool modfiMark = true);
+        Player *      getPlayer(int id);
 
         //players action
         bool         JoinPlayer(std::string nick,void * client = nullptr);
@@ -47,6 +48,7 @@ class GameWorld
 
 
         //if nullptr to all players
+        virtual void         OnPlayerJoin(Player & pl);
         virtual void         OnChunkUpadte(TerrainChunk & chunk);       
         virtual void         OnPlayerUpadate(Player & pl);
         virtual void         ReportEvent(std::string message, Player* pl = nullptr);

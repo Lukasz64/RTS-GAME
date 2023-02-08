@@ -29,6 +29,7 @@ private:
 public:
     std::string nick;
     bool isConnected = false;
+    int slodID = 0;
     
     
     int  caheUnitsCount = 0;

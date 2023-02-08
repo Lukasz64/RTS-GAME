@@ -36,6 +36,10 @@ TerrainChunk * GameWorld::getChunkForUpadte(int x, int y,bool modfiMark) {
         chunks[x][y].OnModifed();
     return &chunks[x][y];
 }
+Player * GameWorld::getPlayer(int id){
+    return &players[id];
+}
+
 
 void GameWorld::PrintMap() {
     COLORS cc[] = { YELLOW,BLUE,GREEN,BLACK };
@@ -79,7 +83,7 @@ GameWorld::GameWorld(std::string worldName,unsigned int seed)
             //init chunks
             chunks[x][y] = TerrainChunk(chunk, Vect2(x, y));
             chunks[x][y].StcjonaryUnit = Unit(Vect2(x, y));
-        }
+        }   
 }
 
 GameWorld::~GameWorld()
@@ -135,7 +139,10 @@ bool GameWorld::JoinPlayer(string nick,void * client)
             //come back to game          
             players[palyerSlot].isConnected = true;
             players[palyerSlot].clientIstnace = client;
-            PlayerUpadate(palyerSlot);
+            players[palyerSlot].slodID = palyerSlot;
+
+            //PlayerUpadate(freeSlot);
+            OnPlayerJoin(players[palyerSlot]);
             return true;
         }
     }
@@ -143,11 +150,13 @@ bool GameWorld::JoinPlayer(string nick,void * client)
     if (freeSlot != -1) {
         players[freeSlot] = Player(nick,client);
         players[freeSlot].isConnected = true;
+        players[freeSlot].slodID = freeSlot;
 
         if(worldOwner == -1)
             worldOwner = freeSlot;
 
-        PlayerUpadate(freeSlot);
+        //PlayerUpadate(freeSlot);
+        OnPlayerJoin(players[freeSlot]);
         return true;
     }
 
@@ -282,6 +291,9 @@ void GameWorld::GameTick() {
                 OnChunkUpadte(chunks[x][y]);         
             }
         }
+}
+void  GameWorld::OnPlayerJoin(Player & pl){
+
 }
 void GameWorld::OnChunkUpadte(TerrainChunk & chunk){
     //cout << "chunk" << chunk.Loc.ToString() << " needs update" << endl;

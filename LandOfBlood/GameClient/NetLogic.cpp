@@ -67,10 +67,16 @@ void SendRPC(int sockfd,string call,int arg){
     args.PushVariable(arg);
     SendRPC(sockfd,call,args);
 }
+void SendRPC(int sockfd,string call,int arg,Vect2 arg2){
+    DataContainer args;
+    args.PushVariable(arg);
+    args.PushVariable(arg2);
+    SendRPC(sockfd,call,args);
+}
 
 
 
-const int ClientReciveBuffer = 8 * 1024; //reach buffer 8KB
+const int ClientReciveBuffer = 64 * 1024; //reach buffer 64KB
 
 
 void ReciveThread(int fd,SafeQueue<RpcCall> & calls){
@@ -79,7 +85,18 @@ void ReciveThread(int fd,SafeQueue<RpcCall> & calls){
     size_t  expectedPacket = 0;
     while (1)
     {
-            recivedDataSize += read(fd, &reciveBuffer[recivedDataSize], !expectedPacket  ? sizeof(int) : (expectedPacket - recivedDataSize));
+            int recived = read(fd, &reciveBuffer[recivedDataSize], !expectedPacket  ? sizeof(int) : (expectedPacket - recivedDataSize));
+            if(recived <= 0) {
+                ReportWarning("Connection fail");
+                RpcCall rcall {
+                    "TCP-CONN-LOST"                    
+                };
+                calls.push(rcall);
+                return;  //finies thread              
+            }
+            
+            
+            recivedDataSize += recived;
 
             cout << colorize( YELLOW ) << "Read:"<< recivedDataSize << endl;
             

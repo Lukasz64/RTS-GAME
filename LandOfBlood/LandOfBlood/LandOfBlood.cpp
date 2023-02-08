@@ -106,10 +106,13 @@ int main()
     ReportInfo("Lunch Server Threads..");
     core.LaunchServer();
     ReportInfo("Done.");
+    //srand(time(NULL));
 
     cout <<colorize(GREEN)<< "Hello world!" << endl;
     while (1)
     {
+        int c;
+        cin >> c;
         /* code */
     }
     

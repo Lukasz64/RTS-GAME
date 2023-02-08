@@ -23,8 +23,6 @@
 #include <termios.h>            //termios, TCSANOW, ECHO, ICANON
 #include "main.h"
 
-
-
 using namespace std;
 std::map<string, string> settings = {
         { "adress", "127.0.01" },
@@ -32,17 +30,7 @@ std::map<string, string> settings = {
         { "nick", "luki" },
 };
 
-
-
-int main()
-{
-    SelfTerminalConotrol(true);   
-    InitLogs("ClientLogs.txt");
-    ReportInfo("Lounch client...");
-    LoadSettings(settings);
-    ReportInfo("Load settings ok");
-
-     //int clfd = 
+int InitConnetion(){
     int sockfd = 0;
     struct sockaddr_in serv_addr;
     memset(&serv_addr, '0', sizeof(serv_addr)); 
@@ -53,60 +41,59 @@ int main()
        ReportError("Fail to create socket",true);
 
     if(inet_pton(AF_INET, settings["adress"].c_str(), &serv_addr.sin_addr) <= 0)
-       ReportError("Fail to read given ip adress:" +  settings["adress"],true);
-    
-    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-       ReportError("Fail to connect to " + settings["adress"] + ":" + settings["port"],true);
+       ReportError("Fail to read given ip adress:" +  settings["adress"],true);  
 
+   if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0){
+         ReportError("Fail to connect to " + settings["adress"] + ":" + settings["port"]); 
+         return -1;
+    }
 
-    SendRPC(sockfd,"register","luki");
-    SendRPC(sockfd,"add","lukland");
-    SendRPC(sockfd,"add","lukland 23");
-    SendRPC(sockfd,"list");
-    SendRPC(sockfd,"join",(int)0);
+    return sockfd;
+}
 
+int main()
+{
+    SelfTerminalConotrol(false);   
+    InitLogs("ClientLogs.txt");
+    ReportInfo("Lounch client...");
+    LoadSettings(settings);
+    ReportInfo("Load settings ok");
 
-    SafeQueue<RpcCall> calls;
+   SafeQueue<RpcCall> calls;
 
-    thread readThtread = thread(
-         [sockfd,&calls] { 
-            ReciveThread(sockfd,calls);
-            ReportWarning("Main tgheread closed");
-        }
-    );
+      
+    while(1){       
+      int sockfd = InitConnetion();
 
-    //SendRPC(sockfd,"rpc-vect",Vect2(12,999));
+      //if fail recconeting until sucess
+      //connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)
+      if( sockfd < 0){
+         ReportInfo("Try reconnect ...");
+         sleep(5);
+         continue;
+      }
+      
+      //simple clear queue
+      while (!calls.isEmpty())
+         calls.pop();
 
-    //DataContainer rec,box;
-    //rec.PushVariable((string)"Test RPC");
-    //rec.PushVariable(box);
+      //rpc recivng thread
+      thread readThtread = thread(
+            [sockfd,&calls] { 
+               ReciveThread(sockfd,calls);
+               ReportWarning("rpc thread closed");
+         }
+      ); 
+     
 
-    //DataContainer t = rec.GetDataContainer(1);
+      //game main
+      GameMain(settings["nick"],sockfd,calls);
 
-    //vector<uint8_t> data = rec.Serialize();
-    //int size = data.size();
+      SelfTerminalConotrol(false);
+      shutdown(sockfd,SHUT_RDWR);
+      close(sockfd);
 
-   
-
-    /*cout << colorize(GREEN) << "TestSIG:";
-    for (size_t i = 0; i < size; i++)
-       printf("%X-",(int)data[i]);
-    
-    cout << endl;*/
-    
-   
-    //write(sockfd,&size,sizeof(size));
-    //write(sockfd,data.data(),size);
-    //write(sockfd,data.data(),size);
-
-    while(1){
-            char in;
-            //scanf(" %c",&in);
-            in = getchar();
-            printf("read:%d\n",(int)in);
-
-           //write(sockfd,data.data(),size);
-           //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      readThtread.join();
     }
 
 }

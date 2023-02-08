@@ -15,8 +15,11 @@ void SendRPC(int sockfd,std::string call);
 void SendRPC(int sockfd,std::string call,std::string arg);
 void SendRPC(int sockfd,std::string call,Vect2 arg);
 void SendRPC(int sockfd,std::string call,int arg);
+void SendRPC(int sockfd,std::string call,int arg,Vect2 arg2);
 void ReciveThread(int fd,SafeQueue<RpcCall> & calls);
 
 
 void SelfTerminalConotrol(bool enable);
 void LoadSettings(std::map<std::string, std::string>  & settings, std::string file = "ClientConfig.txt");
+
+int GameMain(std::string playernick,int sockfd,SafeQueue<RpcCall> & calls);

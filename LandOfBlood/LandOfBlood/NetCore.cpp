@@ -123,6 +123,7 @@ public:
 
         vector<uint8_t> data = rpcFrame.Serialize();
         int size = data.size();
+        cout << "Buff size:"<< size << endl;
 
         write((char *)&size,sizeof(size));
         write((char *)data.data(),size);
@@ -277,8 +278,9 @@ void NetCore::ProvessEvent( RpcCall & event ){
             for (int i = 0; i < rooms.size(); i++)
             {
                DataContainer container;
-               container.PushVariable(i);
+               //container.PushVariable(i);
                container.PushVariable((string)rooms[i].name);
+               cout << colorize(MAGENTA) << rooms[i].name << endl;
                event.sender->SendRPC("Rooms.Room",container);
             }  
             return;
@@ -288,7 +290,7 @@ void NetCore::ProvessEvent( RpcCall & event ){
             if(roomName == "")
                 return;
             GameRoom room(roomName);
-            room.JoinPlayer(event.sender->cilentName);
+            room.JoinPlayer(event.sender->cilentName,event.sender);
             event.sender->roomID = rooms.size();
             rooms.push_back(room);
             return;
@@ -298,8 +300,13 @@ void NetCore::ProvessEvent( RpcCall & event ){
             if(roomID >= rooms.size())
                 return;
         
-            if(rooms[roomID].JoinPlayer(event.sender->cilentName,event.sender));
+            if(rooms[roomID].JoinPlayer(event.sender->cilentName,event.sender)){
                 event.sender->roomID = roomID;
+                //event.sender->SendRPC("STATUS",(string)"OK");
+            } else {
+                event.sender->SendRPC("STATUS",(string)"ER");
+            }
+
           
             return;
         }
@@ -311,15 +318,21 @@ void NetCore::ProvessEvent( RpcCall & event ){
 void NetCore::MainThread(){ 
     while (1)
     {
-        if(!clientRequests.isEmpty()){         
+        while(!clientRequests.isEmpty()){         
             RpcCall proccsedEvent = clientRequests.pop();
             ProvessEvent(proccsedEvent);           
         }
+        usleep(1000/5);       
     }
     
 }
 
 void NetCore::LaunchServer(){ 
+    //
+    GameRoom r("Nice room1"), r1("Nice room2"),r2("Nice room3");
+    rooms.push_back(r);rooms.push_back(r1);rooms.push_back(r2);
+    //
+
     pollThread = thread(
          [this] { 
             this->EpollThread(); 
@@ -350,7 +363,9 @@ void NetCore::handleEvent(uint32_t events){
             msg << "new connection from:" << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << "(fd:" << clientFd << ")";   
             ReportInfo(msg.str());    
 
-            clients.insert(new Client(clientFd,this));
+            Client * cl = new Client(clientFd,this);
+            //cout << cl << endl;
+            clients.insert(cl);
     }
     if(events & ~EPOLLIN){
         ReportError("Critical fail of handle EPOLL server shut dow...",true,-2);
@@ -386,5 +401,83 @@ void GameRoom::ProvessEvent(RpcCall & call){
         BackToBaseUints(nick,call.container.GetInt(0),call.container.GetVect2(1));
     } else if(call.rpcName == "upgrade"){
         UpgradeConstruction(nick,call.container.GetInt(0),call.container.GetVect2(1));
-    } 
+    }    
+}
+
+void PackChunk(TerrainChunk chunk, DataContainer & cont){
+    DataContainer res;
+    res.PushVariable((int)chunk.Type);
+    res.PushVariable((int)((chunk.TerrainOwner != nullptr) ? chunk.TerrainOwner->slodID : -1));//owner
+
+    int unit = -1;
+    if(chunk.MovingUnits.size() > 0){
+        unit = chunk.MovingUnits.front().getOwnerID();
+    }
+    res.PushVariable((int)unit);
+    for (int i = 0; i < 4; i++)
+        res.PushVariable((int)chunk.Constructions[i].ConstrLvl);
+
+    res.PushVariable(chunk.StcjonaryUnit.getCount());
+    for (int i = 0; i < 4; i++)
+        res.PushVariable((int)chunk.NaturalRes.getResource((ResourceType)i));
+    cont.PushVariable(res);
+}
+void PackChunk2(TerrainChunk chunk, DataContainer & res){
+    res.PushVariable(chunk.Loc);
+    int unit = -1;
+    if(chunk.MovingUnits.size() > 0){
+        unit = chunk.MovingUnits.front().getOwnerID();
+    }
+    res.PushVariable((int)unit);
+    res.PushVariable((int)chunk.Type);
+
+    res.PushVariable((int)((chunk.TerrainOwner != nullptr) ? chunk.TerrainOwner->slodID: -1));//owner
+    for (int i = 0; i < 4; i++)
+        res.PushVariable((int)chunk.Constructions[i].ConstrLvl);
+
+    res.PushVariable(chunk.StcjonaryUnit.getCount());
+    for (int i = 0; i < 4; i++)
+        res.PushVariable((int)chunk.NaturalRes.getResource((ResourceType)i));
+}
+
+void GameRoom::OnPlayerJoin(Player & pl){
+    Client * cl = (Client *)pl.clientIstnace;
+    cout << cl << endl;
+
+    cl->SendRPC("STATUS",(string)"OK");
+
+    //load map ferst time
+    DataContainer cont;  
+    if(pl.getPlayerStatus() == NoReady){
+        cont.PushVariable(Vect2(-1,-1));
+    } else {
+        cont.PushVariable(pl.getBaseLoc());
+    }
+    cont.PushVariable(pl.slodID);
+
+    for (int y  = 0; y < WorldSize; y++){
+            for (int x  = 0; x < WorldSize; x++){
+                PackChunk(getChunk(x,y),cont);    
+            }
+    }
+    cl->SendRPC("MapSync",cont);
+}
+
+void GameRoom::OnPlayerUpadate(Player & pl){
+   if(pl.getPlayerStatus() == Readay){
+        TerrainChunk chunk = getChunk(pl.getBaseLoc().X,pl.getBaseLoc().Y);
+        OnChunkUpadte(chunk);
+        cout << "Update player! :"<< pl.slodID << endl;
+   }
+}
+
+void GameRoom::OnChunkUpadte(TerrainChunk & chunk) {
+    DataContainer cont;
+    PackChunk2(chunk,cont);
+    for (size_t i = 0; i < MaxPlayers; i++)
+    {
+        Player * pl = getPlayer(i);
+        if(pl->isConnected)
+            ((Client *)pl->clientIstnace)->SendRPC("Chunk",cont);
+    }
 }

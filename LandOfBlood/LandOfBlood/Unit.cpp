@@ -215,7 +215,9 @@ void Unit::UnlockUpadte(Vect2 terrLoc, GameWorld& world) {
 
     return;
 }
-
+int  Unit::getOwnerID(){
+    return owner->slodID;
+}
 bool Unit::sendUnits(int c, Vect2 dest, Unit* outUnit) {
     if (count >= c) {
         *outUnit = Unit(owner, c);
