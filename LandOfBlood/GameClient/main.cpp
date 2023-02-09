@@ -79,17 +79,17 @@ int main()
       //simple clear queue
       while (!calls.isEmpty())
          calls.pop();
+      sleep(1);
 
       //rpc recivng thread
       thread readThtread = thread(
             [sockfd,&calls] { 
                ReciveThread(sockfd,calls);
                ReportWarning("rpc thread closed");
-         }
+            }
       ); 
       if(WaitUntilRedy() == false){
-         ReportError("Connection lost, press enter to reconnect");
-         getchar();
+         ReportError("Connection lost.");
          readThtread.join();
          continue;
       }

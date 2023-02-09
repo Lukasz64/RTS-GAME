@@ -564,3 +564,11 @@
 [2023-02-09.20:15:24 INFO]:User luki join the lobby
 [2023-02-09.20:17:06 INFO]:new connection from:10.0.2.2:63392(fd:8)
 [2023-02-09.20:17:06 INFO]:User Mati join the lobby
+[2023-02-09.20:55:41 INFO]:Server lounching...
+[2023-02-09.20:55:41 INFO]:Load settings ok
+[2023-02-09.20:55:41 INFO]:Iniitalize Server..
+[2023-02-09.20:55:41 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.20:55:41 INFO]:Lunch Server Threads..
+[2023-02-09.20:55:41 INFO]:Done.
+[2023-02-09.20:55:43 INFO]:new connection from:10.0.2.2:62781(fd:7)
+[2023-02-09.20:55:44 INFO]:User oo join the lobby
