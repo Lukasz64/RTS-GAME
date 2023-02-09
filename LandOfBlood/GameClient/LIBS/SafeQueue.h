@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SAFE_QUEUE_H // include guard
+#define SAFE_QUEUE_H
+
 #include <iostream>
 #include <mutex>
 #include <queue>
@@ -85,3 +87,5 @@ class SafeEleemnt{
                 return q;
         }
 };
+
+#endif

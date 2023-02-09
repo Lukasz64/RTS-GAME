@@ -61,11 +61,12 @@ bool Player::SendUnits(GameWorld& world, int count, Vect2 dest) {
         if (base->StcjonaryUnit.sendUnits(count, dest, &u)) {
             //take cost
             base->NaturalRes.subResource(cost);
-            // upadte player
-            world.OnPlayerUpadate(*this);
             // send units and upadte base
             base->MovingUnits.push_back(u);
             base->ToUpadte();
+            // upadte player
+            world.OnPlayerUpadate(*this);
+            //report game event
             world.ReportEvent("Units send to " + dest.ToString(), this);
             return true;
         }

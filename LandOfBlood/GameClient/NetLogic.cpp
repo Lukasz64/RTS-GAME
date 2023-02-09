@@ -77,12 +77,15 @@ void SendRPC(int sockfd,string call,int arg,Vect2 arg2){
 
 
 const int ClientReciveBuffer = 64 * 1024; //reach buffer 64KB
+volatile bool isConnected = false;
 
+#define DEFBUG_OFF //DEFBUG_ON
 
 void ReciveThread(int fd,SafeQueue<RpcCall> & calls){
     uint8_t reciveBuffer[ClientReciveBuffer];
     size_t  recivedDataSize = 0;      
     size_t  expectedPacket = 0;
+    isConnected = true;
     while (1)
     {
             int recived = read(fd, &reciveBuffer[recivedDataSize], !expectedPacket  ? sizeof(int) : (expectedPacket - recivedDataSize));
@@ -92,19 +95,24 @@ void ReciveThread(int fd,SafeQueue<RpcCall> & calls){
                     "TCP-CONN-LOST"                    
                 };
                 calls.push(rcall);
+                isConnected = false;
                 return;  //finies thread              
             }
             
             
             recivedDataSize += recived;
-
-            cout << colorize( YELLOW ) << "Read:"<< recivedDataSize << endl;
+            #ifdef DEFBUG_ON
+                cout << colorize( YELLOW ) << "Read:"<< recivedDataSize << endl;
+            #endif
             
             if(!expectedPacket && recivedDataSize >= sizeof(int)){
                 recivedDataSize = 0;
                 expectedPacket = *(int *)reciveBuffer;
-                cout << colorize( GREEN ) << "Incomig pocket !" << endl;
-                cout << colorize( YELLOW ) << "SET:"<< expectedPacket << endl;
+
+                #ifdef DEFBUG_ON
+                    cout << colorize( GREEN ) << "Incomig pocket !" << endl;
+                    cout << colorize( YELLOW ) << "SET:"<< expectedPacket << endl;
+                #endif
                 if(expectedPacket > ClientReciveBuffer){
                     ReportError("To lareg packet-exception");
                     expectedPacket = 0;
@@ -118,8 +126,9 @@ void ReciveThread(int fd,SafeQueue<RpcCall> & calls){
                     call.GetDataContainer(1)
                 };
 
-                cout << colorize(GREEN) << "call->"<< rcall.rpcName << endl;
-
+                #ifdef DEFBUG_ON    
+                    cout << colorize(GREEN) << "call->"<< rcall.rpcName << endl;
+                #endif
                 calls.push(rcall);
                 expectedPacket = 0;
                 recivedDataSize = 0;

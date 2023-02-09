@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CONTAINER_H // include guard
+#define CONTAINER_H
+
 #include <string>
 #include <vector>
 #include "Utils.h"
@@ -9,14 +11,14 @@ enum ContainerType {
     STRING_ = 2,
     VECT2_ = 3,
     CONTAINER_ = 4
-};
+}__attribute__ ((__packed__));
 std::string TypeToString(ContainerType type);
 
 struct ContainerRecord
 {
     ContainerType type;
-    int           lenght;
-    int           dataPTR;
+    uint16_t      lenght;//int
+    uint16_t      dataPTR;//
 };
 
 
@@ -57,3 +59,5 @@ public:
     void                DeSerialize();
     std::vector<uint8_t>& Serialize();
 };
+
+#endif

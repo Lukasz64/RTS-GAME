@@ -59,7 +59,10 @@ int main()
     LoadSettings(settings);
     ReportInfo("Load settings ok");
 
-   SafeQueue<RpcCall> calls;
+    SafeQueue<RpcCall> calls;
+
+    cout << "Enter Nick:";
+    cin >> settings["nick"];
 
       
     while(1){       

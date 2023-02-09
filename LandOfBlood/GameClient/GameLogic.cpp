@@ -38,9 +38,9 @@ enum Keys {
    Down = 66,
    Right = 67,
    Left = 68,
-   Enter = 10
+   Enter = 10,
+   Space = 32
 };
-
 
 /*
  //farm
@@ -52,8 +52,12 @@ const int WorldSize = 12;
 struct ChunkInfo {
       ChunkType TerrainType = Land;
       int Owner = -1;
-      int Structs[4]={0};
+      int StructsLevel[4]={0};
+      bool StructsActive[4]={0};
+      bool StructsUpgrade[4]={0};
+
       int Resources[5]={0};
+      //one unit
       int Unit = -1;
 
 
@@ -79,20 +83,24 @@ struct ChunkInfo {
 
          COLORS chc = cc[chunk];
          COLORS tc;
-
+         COLORS uc = chc;
+         if(Unit >= 0){
+            uc = cc2[Unit];
+         }
          if(Owner >= 0){
             sel1 = '[';
             sel2 = ']';
             tc = cc2[Owner];
          } 
          if(selected) {
-            tc = MAGENTA; 
+            tc = WHITE; 
             sel1 = '}';
             sel2 = '{';
          }
 
-         cout << colorize(tc,chc,1) << sel1 << colorize(WHITE,chc) << ' ' << colorize(tc,(chc)) << sel2 << colorize(NC);
+         cout << colorize(tc,chc,1) << sel1 << colorize(uc,chc) << ((Unit >= 0) ? '@' : ' ') << colorize(tc,(chc)) << sel2 << colorize(NC);
       }
+
 
       void DrawRes(){
             COLORS cc[] = { CYAN,RED,WHITE,YELLOW,GREEN };
@@ -103,29 +111,73 @@ struct ChunkInfo {
       }
 
       void Read(DataContainer cont) {
-         TerrainType = (ChunkType)cont.GetInt(0);
-         Owner = cont.GetInt(1);
-         Unit  = cont.GetInt(2);
+         int inc = 0;
+
+         TerrainType = (ChunkType)cont.GetInt(inc++);
+         Owner = cont.GetInt(inc++);
+         Unit  = cont.GetInt(inc++);
+         //cout << "owner:" << Owner << endl;
          for (int i = 0; i < 4; i++)
-            Structs[i] = cont.GetInt(3+i);
+            StructsLevel[i] = cont.GetInt(inc++);
          for (int i = 0; i < 5; i++)
-            Resources[i] = cont.GetInt(7+i);
+            Resources[i] = cont.GetInt(inc++);
+         
+         for (int i = 0; i < 4; i++){
+            StructsActive[i] = cont.GetBool(inc++);
+            StructsUpgrade[i] = cont.GetBool(inc++);
+         }
       }
       void ReadSingle(DataContainer cont) {
-         Unit  = cont.GetInt(1);
-         TerrainType = (ChunkType)cont.GetInt(2);
-         Owner = cont.GetInt(3);
-         cout << "owner:" << Owner << endl;
+         int inc = 1;
+
+         Unit  = cont.GetInt(inc++);
+         TerrainType = (ChunkType)cont.GetInt(inc++);
+         Owner = cont.GetInt(inc++);
+         //cout << "owner:" << Owner << endl;
          for (int i = 0; i < 4; i++)
-            Structs[i] = cont.GetInt(4+i);
+            StructsLevel[i] = cont.GetInt(inc++);
          for (int i = 0; i < 5; i++)
-            Resources[i] = cont.GetInt(8+i);
+            Resources[i] = cont.GetInt(inc++);
+
+         for (int i = 0; i < 4; i++){
+            StructsActive[i] = cont.GetBool(inc++);
+            StructsUpgrade[i] = cont.GetBool(inc++);
+         }
       }
 
+      void DrawInfo(){
+         COLORS cc[] = { CYAN,RED,WHITE,YELLOW,GREEN };  
+         COLORS cc2[] = { GREEN,RED,YELLOW,WHITE };   
+
+         MoveCursor(Vect2(37,3));
+         cout << colorize(WHITE,BLACK) << "Terrain info:";
+         for (int i = 0; i < 5; i++)
+         {
+            MoveCursor(Vect2(37,4+i));   
+            cout <<colorize(cc[i],BLACK,1)<< getResourceName(i) << ":\t"<< Resources[i] << colorize(NC); 
+         }
+
+         for (int i = 0; i < 4; i++)
+         {
+            MoveCursor(Vect2(37,4+6+i));   
+            cout <<colorize(cc2[i],BLACK,1)<< getStructName(i) << ":"<< StructsLevel[i] <<colorize(WHITE,BLACK,1) << "\t(";
+            if(StructsActive[i])
+               cout << colorize(GREEN,BLACK,1) << "ON";
+            else
+               cout << colorize(RED,BLACK,1) << "OFF";
+
+            cout << colorize(WHITE,BLACK,1) << ",";
+
+            if(StructsUpgrade[i])
+               cout << colorize(GREEN,BLACK,1) << "CAN UPGRADE";
+            else
+               cout << colorize(RED,BLACK,1) << "CAN'T UPGRADE";
+
+
+            cout << colorize(WHITE,BLACK,1) << ")"<< colorize(NC); 
+         }  
+      }
 };
-
-
-
 struct Map {
    ChunkInfo chunks[WorldSize][WorldSize];
    Vect2 plBase;
@@ -134,6 +186,7 @@ struct Map {
    void ReadMap(DataContainer & cont){
          plBase = cont.GetVect2(0);
          ownerID = cont.GetInt(1);
+         //cout << ownerID << endl;
 
          int idx = 2;
          for (int y  = 0; y < WorldSize; y++){
@@ -144,8 +197,9 @@ struct Map {
    }
    void RefresChunk(DataContainer & cont){
     Vect2 vect = cont.GetVect2(0);
-    cout <<"Chunk udpate !"<< vect.ToString() << endl;
+    
     chunks[vect.X][vect.Y].ReadSingle(cont);
+    //cout <<"Chunk udpate !"<< vect.ToString()<<"++++++"<<chunks[vect.X][vect.Y].Unit << endl;
     //must be fest
     if(chunks[vect.X][vect.Y].Owner == ownerID && mode(Vect2(0,0)) == 1){
         plBase = vect;
@@ -156,10 +210,9 @@ struct Map {
       for (int y  = 0; y < WorldSize; y++){
          chunks[0][y].TerrainType = (ChunkType)(y % 4);
          for (int x  = 0; x < WorldSize; x++)
-          chunks[x][y].DrawTerrain((selected.X == x && selected.Y == y));
-          cout << endl;
-      }
-             
+            chunks[x][y].DrawTerrain((selected.X == x && selected.Y == y));
+         cout << endl;
+      }     
    }
    void DrawResources(){
         if(mode(Vect2(0,0)) != 1){
@@ -174,8 +227,13 @@ struct Map {
    //attack
    
    int mode(Vect2 selected){
-        if(plBase.X == -1 && plBase.Y == -1)
+        if(selected.CompareValues(plBase))
+            return 0;
+        if(plBase.X == -1 && plBase.Y == -1){
+            if(chunks[selected.X][selected.Y].Owner != -1)
+               return 0;
             return 1;
+        }
         if(chunks[selected.X][selected.Y].Owner == -1)
             return 2;
         if(chunks[selected.X][selected.Y].Owner == ownerID)
@@ -184,11 +242,18 @@ struct Map {
    }
 };
 
+struct ClientGame
+{
+   /* data */
+};
+
+
+
 void GameMenu(int sockfd,SafeQueue<RpcCall> & calls){
     vector<string> servers;
     SendRPC(sockfd,"list");// request server to 
     int cnt = INT32_MAX;
-
+    
     while(cnt){
         if(!calls.isEmpty()){
             RpcCall call = calls.pop();
@@ -201,6 +266,7 @@ void GameMenu(int sockfd,SafeQueue<RpcCall> & calls){
             }
         }
     }
+    system("clear");
     for (size_t i = 0; i < servers.size(); i++)
     {
         cout << colorize(GREEN) << "(" << i << ")" << colorize(WHITE) << servers[i] << endl;
@@ -229,6 +295,7 @@ void GameMenu(int sockfd,SafeQueue<RpcCall> & calls){
                         
                         }else {
                             ReportWarning("Fail to join room");
+                            break;
                         }
                     } else {
                         ReportError("Critical error unexpeted answer from server");
@@ -249,21 +316,37 @@ void GameMenu(int sockfd,SafeQueue<RpcCall> & calls){
 
 }
 
-
 int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
     
     SendRPC(sockfd,"register",playernick);
     GameMenu(sockfd,calls);
 
     Map map;
-    Vect2 t(0,0);  
+    Vect2 t(0,0); 
+    int units = 50; 
+
+    const int maxMessages = 5;
+    string messages[maxMessages];
+    int start = 0;
     
     SelfTerminalConotrol(true); 
 
+    //select
+   //explore
+   //devolop
+   //attack
+   //"Farm","Mine","Sawmill","Willage"
+    string modes[5] = {
+      "--no actions--\n",
+      "Select base(enter)\n",
+      "Explore 50 units (enter)\n",
+      "Upgrade Farm(U)\t\tUpgrade Mine(M)\nUpgrade Sawmill(S)\tUpgrade Willage(W)\nget/back %d units(G/B)\n",
+      "Attack %d units(enter)\n"};
+
    //keys reciving thread
-    thread keyboradThtread = thread(
+   thread keyboradThtread = thread(
          [&calls] { 
-            while (1)
+            while (isConnected)
             {
                char in = getchar();
                DataContainer container;
@@ -278,26 +361,31 @@ int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
         }
    );
 
+    while(isConnected){           
+            int mode = map.mode(t);
+            bool needUpdate = false;
 
-    while(1){           
             while(!calls.isEmpty()){
                RpcCall call = calls.pop();
-               system("clear");
+              
                if(call.rpcName == "TCP-CONN-LOST"){
+                  ReportError("Connection lost, pres any key to reconnect");
+                  keyboradThtread.join();
                   return -1;
-               }
-               
+               }             
                if(call.rpcName == "MapSync"){
                   map.ReadMap(call.container);
                }
                if(call.rpcName == "Chunk"){
                   map.RefresChunk(call.container);
                }
-               
-
-           
-               
-
+               if(call.rpcName == "msg"){
+                   string m = call.container.GetString(0);
+                   messages[start++] = m;
+                   if(start >= maxMessages)start = 0;
+               }
+               needUpdate = true;
+                                   
                if(call.rpcName == "KeyPress"){
                   Keys code = (Keys)call.container.GetInt(0);
                   
@@ -312,37 +400,66 @@ int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
                   if(t.X < 0) t.X = WorldSize - 1;
                   if(t.X >= WorldSize) t.X = 0;
 
+                  if(code == Space){
+                     SendRPC(sockfd,"start");
+                  }
 
                   if(code == Tylda){
                      SelfTerminalConotrol(false);
                      exit(1);
                   }
-
-                  if(map.mode(t) == 1){
+                  mode = map.mode(t) ;
+                  if(mode == 1){//select
                         if(code == Enter){
                             SendRPC(sockfd,"base",t);
                         }
-                  }
+                  } else if(mode == 2 || mode == 4){// (explore/attack)
+                        if(code == Enter){
+                            SendRPC(sockfd,"send",units,t);   
+                        }
+                  } else if(mode == 3){//devolop
+                        if(code == 'u')SendRPC(sockfd,"upgrade",0,t); 
+                        else if(code == 'm')SendRPC(sockfd,"upgrade",1,t); 
+                        else if(code == 's')SendRPC(sockfd,"upgrade",2,t); 
+                        else if(code == 'w')SendRPC(sockfd,"upgrade",3,t);   
+                        else if(code == 'g')SendRPC(sockfd,"send",units,t);
+                        else if(code == 'b')SendRPC(sockfd,"back",units,t);   
+                  } 
 
-                  cout << code;
+                  if(code == '=') units+=5;
+                  if(code == '-' && units > 0) units-=5;
+
+
+                  //cout << code;
                }
+                     
+            //cout << "ee" << endl;
 
+            }
+            if(needUpdate){
+               system("clear");
                map.DrawResources(); cout << endl;
                cout << t.ToString()<< endl;
-            
-               
-
-
+                           
          
                map.DrawMap(t);
-               if(map.mode(t) == 1){
-                    cout << "Select base(enter)"<<endl;
+               printf("Exit(~)\t\t\tUints %d(+/-)\n",units);
+               printf(modes[mode].c_str(),units,units);
+               
+               if(mode == 3)
+                  map.chunks[t.X][t.Y].DrawInfo();  
+
+               MoveCursor(Vect2(0,20));
+               for (size_t i = 0; i < maxMessages; i++)
+               {
+                  int realIdx = (i+start)%maxMessages;
+                  if(messages[realIdx] != "")
+                     cout << messages[realIdx] << endl;
                }
             }
-            usleep(1000/60);
-            //printf("read:%d\n",(int)in);
 
-           //write(sockfd,data.data(),size);
-           //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            usleep(1000*1000/10);//10 frames
     }
+    keyboradThtread.join();
+    return -1;
 }

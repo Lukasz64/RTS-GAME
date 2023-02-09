@@ -42,7 +42,7 @@ void DataContainer::readBinary(vector<uint8_t>& inBuffer, int startIndex, void* 
         ((uint8_t*)data)[i] = inBuffer[startIndex + i];
 }
 void DataContainer::addData(ContainerType type, void* data, int lenght) {
-    ContainerRecord rec{ type,lenght,(int)dataContainer.size() };
+    ContainerRecord rec{ type,(uint16_t)lenght,(uint16_t)dataContainer.size() };
     recordContainer.push_back(rec);
     writeBinary(dataContainer, data, lenght);
 }

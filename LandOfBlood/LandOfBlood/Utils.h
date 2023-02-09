@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTILS_H // include guard
+#define UTILS_H
 
 #include <string>
 int random(int min, int max);
@@ -38,3 +39,5 @@ void InitLogs(std::string fileName);
 void ReportError(std::string errmsg, bool isCritical = false,int retunCode = -1);
 void ReportWarning(std::string warnmsg);
 void ReportInfo(std::string infomsg);
+
+#endif

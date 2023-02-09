@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TERRAIN_CHUNK_H 
+#define TERRAIN_CHUNK_H
+
 #include "Resource.h"
 #include "Utils.h"
 //#include "GameWorld.h"
@@ -116,7 +118,8 @@ class TerrainChunk
             Construction(3,Resource(200,200,20,100),Resource(20,0,0,0),10,5,20),//sawmill
             Construction(4,Resource(10000,5000,4000,10000),Resource(0,10,50,100),50,20,100)//willage
         };
-
+        bool ConstructionActive[4] = {false};
+        bool ConstructionCanUprade[4] = {false};
 
         std::list<Unit> MovingUnits;
 
@@ -134,5 +137,5 @@ class TerrainChunk
    
 };
 
-
+#endif
 

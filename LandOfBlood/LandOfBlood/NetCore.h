@@ -1,3 +1,6 @@
+#ifndef NET_CORE_H // include guard
+#define NET_CORE_H
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -38,6 +41,7 @@ class GameRoom : public GameWorld {
     void OnPlayerUpadate(Player & pl) override;
     void OnChunkUpadte(TerrainChunk & chunk) override; 
     void OnPlayerJoin(Player & pl)override;
+    void ReportEvent(std::string message, Player* pl = nullptr) override;
     //void         OnChunkUpadte(TerrainChunk & chunk);
 };
 
@@ -79,7 +83,7 @@ public:
     virtual void handleEvent(uint32_t events) override;
 };
 
-
+#endif
 
 
 

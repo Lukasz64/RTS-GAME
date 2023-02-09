@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <error.h>
 #include <netdb.h>
+#include <list>
 
 #include <string>
 #include <sstream>
@@ -316,13 +317,31 @@ void NetCore::ProvessEvent( RpcCall & event ){
 
 
 void NetCore::MainThread(){ 
+    int t = 0;
     while (1)
     {
         while(!clientRequests.isEmpty()){         
             RpcCall proccsedEvent = clientRequests.pop();
             ProvessEvent(proccsedEvent);           
         }
-        usleep(1000/5);       
+        t++;
+        if(t >= (5*60)){
+            t = 0;
+            list<int> toDelete;
+            for (size_t i = 0; i < rooms.size(); i++)
+            {
+                rooms[i].GameTick();
+                if(rooms[i].GetRoomState() == false) 
+                    toDelete.push_back(i);
+            }
+            /*cout << colorize(RED) << "Deleted:" << toDelete.size() << " rooms" << endl;
+            //delete unused rooms
+            for(int i : toDelete){
+                rooms.erase(std::next(rooms.begin(),i));
+            }*/
+            //ReportInfo("Upadte Rooms");        
+        }
+        usleep(1000*1000/60);       
     }
     
 }
@@ -401,7 +420,7 @@ void GameRoom::ProvessEvent(RpcCall & call){
         BackToBaseUints(nick,call.container.GetInt(0),call.container.GetVect2(1));
     } else if(call.rpcName == "upgrade"){
         UpgradeConstruction(nick,call.container.GetInt(0),call.container.GetVect2(1));
-    }    
+    }      
 }
 
 void PackChunk(TerrainChunk chunk, DataContainer & cont){
@@ -420,6 +439,12 @@ void PackChunk(TerrainChunk chunk, DataContainer & cont){
     res.PushVariable(chunk.StcjonaryUnit.getCount());
     for (int i = 0; i < 4; i++)
         res.PushVariable((int)chunk.NaturalRes.getResource((ResourceType)i));
+    
+
+    for (int i = 0; i < 4; i++) {
+        res.PushVariable((bool)chunk.ConstructionActive[i]);
+        res.PushVariable((bool)chunk.ConstructionCanUprade[i]);
+    }
     cont.PushVariable(res);
 }
 void PackChunk2(TerrainChunk chunk, DataContainer & res){
@@ -438,6 +463,11 @@ void PackChunk2(TerrainChunk chunk, DataContainer & res){
     res.PushVariable(chunk.StcjonaryUnit.getCount());
     for (int i = 0; i < 4; i++)
         res.PushVariable((int)chunk.NaturalRes.getResource((ResourceType)i));
+
+    for (int i = 0; i < 4; i++) {
+        res.PushVariable((bool)chunk.ConstructionActive[i]);
+        res.PushVariable((bool)chunk.ConstructionCanUprade[i]);
+    }
 }
 
 void GameRoom::OnPlayerJoin(Player & pl){
@@ -480,4 +510,23 @@ void GameRoom::OnChunkUpadte(TerrainChunk & chunk) {
         if(pl->isConnected)
             ((Client *)pl->clientIstnace)->SendRPC("Chunk",cont);
     }
+}
+
+void GameRoom::ReportEvent(std::string message, Player* pl){
+    
+    if (pl != nullptr) {
+        cout << colorize(YELLOW) << "To " << pl->nick << " event: " << message<< colorize(NC) << endl;
+         Client * cl = (Client *)pl->clientIstnace;
+         cl->SendRPC("msg",(string)(colorize(YELLOW) + message));
+    }   
+    else {
+        cout << colorize(GREEN) << "To all event: " << message << colorize(NC) << endl;
+        for (size_t i = 0; i < MaxPlayers; i++)
+        {
+            Player * pl = getPlayer(i);
+            if(pl->isConnected)
+                ((Client *)pl->clientIstnace)->SendRPC("msg",(string)(colorize(GREEN) + message));
+        }
+    }
+    
 }

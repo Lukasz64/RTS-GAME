@@ -178,8 +178,6 @@ bool GameWorld::LeftPlayer(string nick)
     if (palyerSlot != -1) {
         if (players[palyerSlot].isConnected) {
             
-
-
             //if player was not reigstred only connected
             if (players[palyerSlot].getPlayerStatus() == NoReady)
                 players[palyerSlot] = Player();//delete player at all
@@ -197,6 +195,17 @@ bool GameWorld::LeftPlayer(string nick)
 
     return   false;// left error
 }
+
+bool  GameWorld::AllRedy(){
+    return (CountConnected() == MaxPlayers);  
+}
+int  GameWorld::CountConnected(){
+    int wnk=0;
+    for (size_t i = 0; i < MaxPlayers; i++)
+        if(players[i].getPlayerStatus() == Readay && players[i].isConnected)
+            wnk++;
+    return wnk;  
+}
 //
 bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
     int player = FindPlayer(nick);
@@ -204,8 +213,12 @@ bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
 
         bool res = players[player].SetBase(players, *getChunkForUpadte(terrLoc.X, terrLoc.Y));// chunks[terrLoc.X][terrLoc.Y]
 
-        if (res)
+        if (res){
             OnPlayerUpadate(players[player]);
+            if(AllRedy()){
+                StartGame(players[worldOwner].nick);
+            }    
+        }
 
         return res;
     }
@@ -215,7 +228,9 @@ bool GameWorld::SetPlayerBase(string nick, Vect2 terrLoc) {
 bool GameWorld::StartGame(std::string nick) {
     int player = FindPlayer(nick);
     if (player != -1) {
-        if (worldOwner == player && players[player].getPlayerStatus() == Readay) {
+        //check if owenr, if redy, and connected player more than owner
+        if (worldOwner == player && players[player].getPlayerStatus() == Readay && CountConnected() >= 2) {
+            ReportEvent("Game begin let win the best!");
             gameRunning = true;
             return true;
         }
@@ -232,11 +247,16 @@ void GameWorld::ReportEvent(std::string message, Player* pl) {
         cout << colorize(GREEN) << "To all event: " << message << colorize(NC) << endl;
     }
 }
+void  GameWorld::ReportDay(int x){
+
+}
 void GameWorld::GameTick() {
     if (!gameRunning)
         return;
-    
-    cout << "--------------- Day:"<<day++<<"---------------" << endl;
+
+    ReportDay(day++);
+    //cout << "--------------- Day:"<<day++<<"---------------" << endl;
+
     
     //clear cahe
     for (size_t x = 0; x < MaxPlayers; x++)
@@ -270,7 +290,7 @@ void GameWorld::GameTick() {
      }
 
     if (redyCount == 1) {
-        ReportEvent("Player" + players[anyRedyPlayer].nick + " win the game.");
+        ReportEvent("Player " + players[anyRedyPlayer].nick + " win the game.");
         players[anyRedyPlayer].setPlayerDefeated();
         gameRunning = false;
         return;

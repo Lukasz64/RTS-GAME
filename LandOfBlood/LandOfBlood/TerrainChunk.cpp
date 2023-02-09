@@ -96,9 +96,21 @@ void TerrainChunk::TerrainTick(){
     //additonal security chcek(game integierity)
     if (TerrainOwner->IsPlayerBase(*this) == false) {
         //process all structres
-        for (int i = 0, units = StcjonaryUnit.getCount(); i < 4 && units > 0; i++)
-            if (Constructions[i].Tick(*this, units))
+        int units = StcjonaryUnit.getCount();
+        for (int i = 0; i < 4; i++){
+            ConstructionActive[i] = Constructions[i].Tick(*this, units);
+
+            bool canUpgrade = Constructions[i].CanUpgrade(*TerrainOwner->getPlayerResources());
+                    
+            if(canUpgrade != ConstructionCanUprade[i]){
+                ConstructionCanUprade[i] = canUpgrade;
                 needUpade = true;
+                continue;
+            }
+
+            if ( ConstructionActive[i] )
+                needUpade = true;
+        }
     }
     int cost = StcjonaryUnit.getCount() * CostFoodMul;
     if (TerrainOwner->getPlayerResources()->subResource(Resource(0, 0, 0, cost)) == false) {

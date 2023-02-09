@@ -42,6 +42,12 @@ void SelfTerminalConotrol(bool enable){
     tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 }
 
+void MoveCursor(Vect2 vect){
+    printf("\033[%d;%dH",vect.Y,vect.X);
+    fflush(stdout);
+}
+
+
 void LoadSettings(std::map<string, string>  & settings, std::string file){
     ifstream settingsFile(file);
     while (!settingsFile.eof())

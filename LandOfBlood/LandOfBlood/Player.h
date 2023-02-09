@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PLAYER_H 
+#define PLAYER_H 
+
 //#include "TerrainChunk.h"
 //#include "GameWorld.h"
 
@@ -53,3 +55,5 @@ public:
     bool HasAnyOtherTeriory(GameWorld& world);
 
 };
+
+#endif 

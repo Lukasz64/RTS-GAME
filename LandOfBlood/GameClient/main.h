@@ -20,6 +20,9 @@ void ReciveThread(int fd,SafeQueue<RpcCall> & calls);
 
 
 void SelfTerminalConotrol(bool enable);
+void MoveCursor(Vect2 vect);
 void LoadSettings(std::map<std::string, std::string>  & settings, std::string file = "ClientConfig.txt");
 
 int GameMain(std::string playernick,int sockfd,SafeQueue<RpcCall> & calls);
+
+extern volatile bool isConnected;

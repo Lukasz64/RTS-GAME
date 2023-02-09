@@ -1,10 +1,12 @@
-#pragma once
+#ifndef GAME_WORLD_H // include guard
+#define GAME_WORLD_H
+
 #include "Player.h"
 #include "TerrainChunk.h"
 
 #include <string>
 const int WorldSize = 12;
-const int MaxPlayers = 8;
+const int MaxPlayers = 4;
 
 const int CostFoodMul = 1;
 
@@ -22,6 +24,8 @@ class GameWorld
         int       FindFreePlayerSlot();
         int       FindActiveConnectedPlayer();
         void      PlayerUpadate(int plID);
+        int       CountConnected();
+        bool      AllRedy();
 
     public:
         std::string  name = "";
@@ -52,7 +56,10 @@ class GameWorld
         virtual void         OnChunkUpadte(TerrainChunk & chunk);       
         virtual void         OnPlayerUpadate(Player & pl);
         virtual void         ReportEvent(std::string message, Player* pl = nullptr);
-        virtual void         GameTick();
+        virtual void         ReportDay(int x);
+        
+        //interal action 
+        void  GameTick();
 
         // server debug
         void PrintMap();
@@ -60,3 +67,4 @@ class GameWorld
         void ShowGameOwner();
 };
 
+#endif
