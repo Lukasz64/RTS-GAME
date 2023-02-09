@@ -364,7 +364,7 @@ void ReadServerList(SafeQueue<RpcCall> & calls,vector<string>& servers){
    SendRPC("list");// request server to 
    int cnt = INT32_MAX;
     
-   while(cnt){
+   while(cnt && isConnected){
         if(!calls.isEmpty()){
             RpcCall call = calls.pop();
             if(call.rpcName == "Rooms.Cnt"){

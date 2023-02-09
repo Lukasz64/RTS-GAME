@@ -88,6 +88,8 @@ int main()
          }
       ); 
       if(WaitUntilRedy() == false){
+         ReportError("Connection lost, press enter to reconnect");
+         getchar();
          readThtread.join();
          continue;
       }
