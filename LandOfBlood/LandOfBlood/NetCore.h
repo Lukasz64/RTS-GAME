@@ -42,6 +42,7 @@ class GameRoom : public GameWorld {
     void OnChunkUpadte(TerrainChunk & chunk) override; 
     void OnPlayerJoin(Player & pl)override;
     void ReportEvent(std::string message, Player* pl = nullptr) override;
+    void ReportDay(int x) override;
     //void         OnChunkUpadte(TerrainChunk & chunk);
 };
 

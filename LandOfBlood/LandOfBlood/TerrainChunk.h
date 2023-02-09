@@ -86,6 +86,8 @@ class Construction {
         bool Upgrade(Resource & res);
         bool Tick(TerrainChunk & chunk, int & units);
 
+        int getCurrentNededUnits();
+
         void PrintInfo();
 
         ~Construction() = default;
@@ -120,6 +122,7 @@ class TerrainChunk
         };
         bool ConstructionActive[4] = {false};
         bool ConstructionCanUprade[4] = {false};
+        int  ConstructionWorkerCost[4] = {0};
 
         std::list<Unit> MovingUnits;
 

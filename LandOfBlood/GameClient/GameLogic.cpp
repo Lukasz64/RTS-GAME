@@ -55,6 +55,7 @@ struct ChunkInfo {
       int StructsLevel[4]={0};
       bool StructsActive[4]={0};
       bool StructsUpgrade[4]={0};
+      int StructsUintCost[4]={0};
 
       int Resources[5]={0};
       //one unit
@@ -75,7 +76,7 @@ struct ChunkInfo {
       }
 
       void DrawTerrain(bool selected){
-         COLORS cc[] = { YELLOW,BLUE,GREEN,BLACK };
+         COLORS cc[] = { GREEN,BLUE,YELLOW,BLACK };
          COLORS cc2[] = { RED,CYAN,MAGENTA,WHITE };
     
          int chunk = (int)TerrainType;
@@ -110,24 +111,8 @@ struct ChunkInfo {
              }
       }
 
-      void Read(DataContainer cont) {
-         int inc = 0;
 
-         TerrainType = (ChunkType)cont.GetInt(inc++);
-         Owner = cont.GetInt(inc++);
-         Unit  = cont.GetInt(inc++);
-         //cout << "owner:" << Owner << endl;
-         for (int i = 0; i < 4; i++)
-            StructsLevel[i] = cont.GetInt(inc++);
-         for (int i = 0; i < 5; i++)
-            Resources[i] = cont.GetInt(inc++);
-         
-         for (int i = 0; i < 4; i++){
-            StructsActive[i] = cont.GetBool(inc++);
-            StructsUpgrade[i] = cont.GetBool(inc++);
-         }
-      }
-      void ReadSingle(DataContainer cont) {
+      void Read(DataContainer cont) {
          int inc = 1;
 
          Unit  = cont.GetInt(inc++);
@@ -142,6 +127,7 @@ struct ChunkInfo {
          for (int i = 0; i < 4; i++){
             StructsActive[i] = cont.GetBool(inc++);
             StructsUpgrade[i] = cont.GetBool(inc++);
+            StructsUintCost[i] = cont.GetInt(inc++);
          }
       }
 
@@ -173,6 +159,9 @@ struct ChunkInfo {
             else
                cout << colorize(RED,BLACK,1) << "CAN'T UPGRADE";
 
+            cout << colorize(WHITE,BLACK,1) << ",";
+
+             cout << colorize(CYAN,BLACK,1) << ""<< StructsUintCost[i] <<" UNITS";
 
             cout << colorize(WHITE,BLACK,1) << ")"<< colorize(NC); 
          }  
@@ -198,7 +187,7 @@ struct Map {
    void RefresChunk(DataContainer & cont){
     Vect2 vect = cont.GetVect2(0);
     
-    chunks[vect.X][vect.Y].ReadSingle(cont);
+    chunks[vect.X][vect.Y].Read(cont);
     //cout <<"Chunk udpate !"<< vect.ToString()<<"++++++"<<chunks[vect.X][vect.Y].Unit << endl;
     //must be fest
     if(chunks[vect.X][vect.Y].Owner == ownerID && mode(Vect2(0,0)) == 1){
@@ -249,6 +238,7 @@ struct ClientGame
     Map map;
     Vect2 t; 
     int units = 50; 
+    int day = 0;
    
     string messages[maxMessages];
     int start = 0;
@@ -289,7 +279,12 @@ struct ClientGame
             if (code == Enter)
                SendRPC("base", t);
         }
-        else if (mode == 2 || mode == 4)
+        else if (mode == 2 )
+        { // (explore/attack)
+            if (code == Enter)
+               SendRPC("send", 50, t);
+        }
+        else if (mode == 4)
         { // (explore/attack)
             if (code == Enter)
                SendRPC("send", units, t);
@@ -330,6 +325,9 @@ struct ClientGame
          messages[start++] = m;
          if(start >= maxMessages)start = 0;
       }
+      else if(call.rpcName == "day"){
+         day = call.container.GetInt(0)+1;    
+      }
    }
    
    void DrawGUI(){
@@ -337,6 +335,8 @@ struct ClientGame
       int mode = map.mode(t);
 
       map.DrawResources();
+      cout <<colorize(BLUE,BLACK,1)<< "Day:"<< day << colorize(NC); 
+
       cout << endl;
       cout << t.ToString() << endl;
 
@@ -487,8 +487,9 @@ int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
             if(needUpdate){
                client.DrawGUI();
             }
-            usleep(1000*1000/10);//10 frames
+            usleep(1000*1000/20);//10 frames
     }
+   ReportError("Connection lost, pres any key to reconnect");
     keyboradThtread.join();
     return -1;
 }

@@ -21,6 +21,7 @@
 
 using namespace std;
 
+//#define DEBUG
 
 uint16_t readPort(string & str){
     char * ptr;
@@ -78,25 +79,25 @@ public:
 
             recivedDataSize += read(clientDescriptor, &reciveBuffer[recivedDataSize], !expectedPacket  ? sizeof(int) : (expectedPacket - recivedDataSize));
 
-            cout << colorize( YELLOW ) << "Read:"<< recivedDataSize << endl;
+            #ifdef DEBUG
+                cout << colorize( YELLOW ) << "Read:"<< recivedDataSize << endl;
+            #endif
             
             if(!expectedPacket && recivedDataSize >= sizeof(int)){
                 recivedDataSize = 0;
                 expectedPacket = *(int *)reciveBuffer;
-                cout << colorize( GREEN ) << "Incomig pocket !" << endl;
-                cout << colorize( YELLOW ) << "SET:"<< expectedPacket << endl;
+                
+                #ifdef DEBUG
+                    cout << colorize( GREEN ) << "Incomig pocket !" << endl;
+                    cout << colorize( YELLOW ) << "SET:"<< expectedPacket << endl;
+                #endif
                 if(expectedPacket > ClientReciveBuffer){
                     ReportError("To lareg packet-exception");
                     expectedPacket = 0;
                 }
 
             }  else if(expectedPacket && recivedDataSize >= expectedPacket){
-               /* cout << colorize(GREEN) << "TestSIG:";
-                for (size_t i = 0; i < recivedDataSize; i++)
-                printf("%X-",(int)reciveBuffer[i]);
-                
-                cout << endl;*/
-                
+              
                 DataContainer call(reciveBuffer,expectedPacket);
                 RpcCall rcall {
                     this,
@@ -124,7 +125,9 @@ public:
 
         vector<uint8_t> data = rpcFrame.Serialize();
         int size = data.size();
-        cout << "Buff size:"<< size << endl;
+        #ifdef DEBUG
+            cout << "Buff size:"<< size << endl;
+        #endif
 
         write((char *)&size,sizeof(size));
         write((char *)data.data(),size);
@@ -174,9 +177,6 @@ public:
         
     }*/
 };
-
-
-
 
 NetCore::NetCore(string & ip,string & p)
 {
@@ -228,7 +228,9 @@ void NetCore::EpollThread(){
             ReportError("epoll_wait fail", true, -5);
         }
         ((EpollHandler*)eventHandle.data.ptr)->handleEvent(eventHandle.events);
+        #ifdef DEBUG
         ReportInfo("Epool action");
+        #endif
     }
 }
 void NetCore::ProvessEvent( RpcCall & event ){
@@ -281,7 +283,9 @@ void NetCore::ProvessEvent( RpcCall & event ){
                DataContainer container;
                //container.PushVariable(i);
                container.PushVariable((string)rooms[i].name);
-               cout << colorize(MAGENTA) << rooms[i].name << endl;
+               #ifdef DEBUG
+                cout << colorize(MAGENTA) << rooms[i].name << endl;
+               #endif
                event.sender->SendRPC("Rooms.Room",container);
             }  
             return;
@@ -423,31 +427,8 @@ void GameRoom::ProvessEvent(RpcCall & call){
     }      
 }
 
-void PackChunk(TerrainChunk chunk, DataContainer & cont){
-    DataContainer res;
-    res.PushVariable((int)chunk.Type);
-    res.PushVariable((int)((chunk.TerrainOwner != nullptr) ? chunk.TerrainOwner->slodID : -1));//owner
 
-    int unit = -1;
-    if(chunk.MovingUnits.size() > 0){
-        unit = chunk.MovingUnits.front().getOwnerID();
-    }
-    res.PushVariable((int)unit);
-    for (int i = 0; i < 4; i++)
-        res.PushVariable((int)chunk.Constructions[i].ConstrLvl);
-
-    res.PushVariable(chunk.StcjonaryUnit.getCount());
-    for (int i = 0; i < 4; i++)
-        res.PushVariable((int)chunk.NaturalRes.getResource((ResourceType)i));
-    
-
-    for (int i = 0; i < 4; i++) {
-        res.PushVariable((bool)chunk.ConstructionActive[i]);
-        res.PushVariable((bool)chunk.ConstructionCanUprade[i]);
-    }
-    cont.PushVariable(res);
-}
-void PackChunk2(TerrainChunk chunk, DataContainer & res){
+void PackChunk(TerrainChunk chunk, DataContainer & res){
     res.PushVariable(chunk.Loc);
     int unit = -1;
     if(chunk.MovingUnits.size() > 0){
@@ -467,27 +448,32 @@ void PackChunk2(TerrainChunk chunk, DataContainer & res){
     for (int i = 0; i < 4; i++) {
         res.PushVariable((bool)chunk.ConstructionActive[i]);
         res.PushVariable((bool)chunk.ConstructionCanUprade[i]);
+        res.PushVariable(chunk.ConstructionWorkerCost[i]);
     }
 }
 
 void GameRoom::OnPlayerJoin(Player & pl){
     Client * cl = (Client *)pl.clientIstnace;
+    #ifdef DEBUG
     cout << cl << endl;
+    #endif
 
     cl->SendRPC("STATUS",(string)"OK");
 
     //load map ferst time
     DataContainer cont;  
-    if(pl.getPlayerStatus() == NoReady){
+    if(pl.getPlayerStatus() == NoReady)
         cont.PushVariable(Vect2(-1,-1));
-    } else {
+    else 
         cont.PushVariable(pl.getBaseLoc());
-    }
+
     cont.PushVariable(pl.slodID);
 
     for (int y  = 0; y < WorldSize; y++){
             for (int x  = 0; x < WorldSize; x++){
-                PackChunk(getChunk(x,y),cont);    
+                DataContainer chunk;
+                PackChunk(getChunk(x,y),chunk); 
+                cont.PushVariable(chunk);     
             }
     }
     cl->SendRPC("MapSync",cont);
@@ -497,13 +483,15 @@ void GameRoom::OnPlayerUpadate(Player & pl){
    if(pl.getPlayerStatus() == Readay){
         TerrainChunk chunk = getChunk(pl.getBaseLoc().X,pl.getBaseLoc().Y);
         OnChunkUpadte(chunk);
+        #ifdef DEBUG
         cout << "Update player! :"<< pl.slodID << endl;
+        #endif
    }
 }
 
 void GameRoom::OnChunkUpadte(TerrainChunk & chunk) {
     DataContainer cont;
-    PackChunk2(chunk,cont);
+    PackChunk(chunk,cont);
     for (size_t i = 0; i < MaxPlayers; i++)
     {
         Player * pl = getPlayer(i);
@@ -513,6 +501,7 @@ void GameRoom::OnChunkUpadte(TerrainChunk & chunk) {
 }
 
 void GameRoom::ReportEvent(std::string message, Player* pl){
+
     
     if (pl != nullptr) {
         cout << colorize(YELLOW) << "To " << pl->nick << " event: " << message<< colorize(NC) << endl;
@@ -529,4 +518,13 @@ void GameRoom::ReportEvent(std::string message, Player* pl){
         }
     }
     
+}
+
+void GameRoom::ReportDay(int x){
+    for (size_t i = 0; i < MaxPlayers; i++)
+    {
+        Player * pl = getPlayer(i);
+        if(pl->isConnected)
+            ((Client *)pl->clientIstnace)->SendRPC("day",x);
+    } 
 }

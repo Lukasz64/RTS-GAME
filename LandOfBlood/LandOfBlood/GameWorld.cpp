@@ -364,6 +364,7 @@ bool  GameWorld::UpgradeConstruction(std::string nick,int id,Vect2 teritory){
 
         if(chunk->Constructions[id].Upgrade(*pl->getPlayerResources())){
             OnPlayerUpadate(*pl);
+            OnChunkUpadte(*chunk);
             return true;
         }
 

@@ -2365,3 +2365,24 @@
 [2023-02-09.03:42:39 INFO]:Lounch client...
 [2023-02-09.03:42:39 INFO]:Load settings ok
 [2023-02-09.03:42:45 INFO]:Joinig room:Nice room1
+[2023-02-09.04:41:01 INFO]:Lounch client...
+[2023-02-09.04:41:01 INFO]:Load settings ok
+[2023-02-09.04:41:15 INFO]:Joinig room:Nice room1
+[2023-02-09.05:03:28 INFO]:Lounch client...
+[2023-02-09.05:03:28 INFO]:Load settings ok
+[2023-02-09.05:03:35 INFO]:Joinig room:Nice room1
+[2023-02-09.05:07:57 INFO]:Lounch client...
+[2023-02-09.05:07:57 INFO]:Load settings ok
+[2023-02-09.05:08:04 INFO]:Joinig room:Nice room1
+[2023-02-09.05:29:42 INFO]:Lounch client...
+[2023-02-09.05:29:42 INFO]:Load settings ok
+[2023-02-09.05:29:48 INFO]:Joinig room:Nice room1
+[2023-02-09.05:35:24 INFO]:Lounch client...
+[2023-02-09.05:35:24 INFO]:Load settings ok
+[2023-02-09.05:35:37 INFO]:Joinig room:Nice room1
+[2023-02-09.05:44:40 WARN]:Connection fail
+[2023-02-09.05:44:40 WARN]:rpc thread closed
+[2023-02-09.05:44:40 ERROR]:Connection lost, pres any key to reconnect
+[2023-02-09.05:45:06 INFO]:Lounch client...
+[2023-02-09.05:45:06 INFO]:Load settings ok
+[2023-02-09.05:45:13 INFO]:Joinig room:Nice room1

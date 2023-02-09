@@ -68,7 +68,7 @@ TerrainChunk::TerrainChunk(ChunkType type, Vect2 loc)
 
 void TerrainChunk::GenResoucesAsPlayerBase(Player* owner) {
     TerrainOwner = owner;
-    StcjonaryUnit = Unit(owner, 100);
+    StcjonaryUnit = Unit(owner, 150);
     NaturalRes = Resource(
         1000,       //wood 
         1000,       //stone 
@@ -99,9 +99,10 @@ void TerrainChunk::TerrainTick(){
         int units = StcjonaryUnit.getCount();
         for (int i = 0; i < 4; i++){
             ConstructionActive[i] = Constructions[i].Tick(*this, units);
+            ConstructionWorkerCost[i] = Constructions[i].getCurrentNededUnits();
 
             bool canUpgrade = Constructions[i].CanUpgrade(*TerrainOwner->getPlayerResources());
-                    
+
             if(canUpgrade != ConstructionCanUprade[i]){
                 ConstructionCanUprade[i] = canUpgrade;
                 needUpade = true;

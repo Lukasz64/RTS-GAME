@@ -61,6 +61,7 @@ void Unit::GoNewLocation(GameWorld& world, Vect2 newLoc) {
         // add units
         if (newChunk->StcjonaryUnit.Add(*this)) {
             world.ReportEvent("Units reach destination" + newChunk->Loc.ToString(), owner);
+            return;
         }
         else { // explore or fight
             //exploration

@@ -103,4 +103,11 @@ using namespace std;
      //cout << colorize(YELLOW) << "----------------------------------" << colorize(NC)<< endl;
 
  }
+
+ int Construction::getCurrentNededUnits(){
+    if(ConstrLvl == 0)
+      return 0;
+      
+    return workUnits[ConstrLvl - 1];
+ }
  
