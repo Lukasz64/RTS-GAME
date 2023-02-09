@@ -87,7 +87,7 @@ int main()
                ReportWarning("rpc thread closed");
          }
       ); 
-     
+      WaitUntilRedy();
 
       //game main
       GameMain(settings["nick"],sockfd,calls);

@@ -2362,3 +2362,6 @@
 [2023-02-09.02:17:40 INFO]:Lounch client...
 [2023-02-09.02:17:40 INFO]:Load settings ok
 [2023-02-09.02:17:47 INFO]:Joinig room:Nice room1
+[2023-02-09.03:42:39 INFO]:Lounch client...
+[2023-02-09.03:42:39 INFO]:Load settings ok
+[2023-02-09.03:42:45 INFO]:Joinig room:Nice room1

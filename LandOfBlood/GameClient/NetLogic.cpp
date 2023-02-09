@@ -29,6 +29,13 @@
 
 using namespace std;
 
+const int ClientReciveBuffer = 64 * 1024; //reach buffer 64KB
+volatile bool isConnected = false;
+volatile int sockfd = -1; 
+
+#define DEFBUG_OFF //DEFBUG_ON
+
+
 uint16_t readPort(string & str){
     char * ptr;
     auto port = strtol(str.c_str(), &ptr, 10);
@@ -37,7 +44,7 @@ uint16_t readPort(string & str){
     return port;
 }
 
-void SendRPC(int sockfd,string call,DataContainer & args){
+void SendRPC(string call,DataContainer & args){
     DataContainer rpcFrame;
     rpcFrame.PushVariable((string)call);
     rpcFrame.PushVariable(args);
@@ -45,47 +52,55 @@ void SendRPC(int sockfd,string call,DataContainer & args){
     vector<uint8_t> data = rpcFrame.Serialize();
     int size = data.size();
 
+    //cout << sockfd << endl;
+
     write(sockfd,&size,sizeof(size));
     write(sockfd,data.data(),size);
 }
-void SendRPC(int sockfd,string call){
+void SendRPC(string call){
     DataContainer args;
-    SendRPC(sockfd,call,args);
+    SendRPC(call,args);
 }
-void SendRPC(int sockfd,string call,string arg){
+void SendRPC(string call,string arg){
     DataContainer args;
     args.PushVariable((string)arg);
-    SendRPC(sockfd,call,args);
+    SendRPC(call,args);
 }
-void SendRPC(int sockfd,string call,Vect2 arg){
+void SendRPC(string call,Vect2 arg){
     DataContainer args;
     args.PushVariable(arg);
-    SendRPC(sockfd,call,args);
+    SendRPC(call,args);
 }
-void SendRPC(int sockfd,string call,int arg){
+void SendRPC(string call,int arg){
     DataContainer args;
     args.PushVariable(arg);
-    SendRPC(sockfd,call,args);
+    SendRPC(call,args);
 }
-void SendRPC(int sockfd,string call,int arg,Vect2 arg2){
+void SendRPC(string call,int arg,Vect2 arg2){
     DataContainer args;
     args.PushVariable(arg);
     args.PushVariable(arg2);
-    SendRPC(sockfd,call,args);
+    SendRPC(call,args);
+}
+void WaitUntilRedy()
+{
+    while (!isConnected)
+        usleep(5000);
 }
 
 
 
-const int ClientReciveBuffer = 64 * 1024; //reach buffer 64KB
-volatile bool isConnected = false;
-
-#define DEFBUG_OFF //DEFBUG_ON
 
 void ReciveThread(int fd,SafeQueue<RpcCall> & calls){
     uint8_t reciveBuffer[ClientReciveBuffer];
     size_t  recivedDataSize = 0;      
     size_t  expectedPacket = 0;
+
+   
+    sockfd = fd;
     isConnected = true;
+    //cout << "--" <<sockfd <<endl;
+
     while (1)
     {
             int recived = read(fd, &reciveBuffer[recivedDataSize], !expectedPacket  ? sizeof(int) : (expectedPacket - recivedDataSize));
@@ -96,6 +111,7 @@ void ReciveThread(int fd,SafeQueue<RpcCall> & calls){
                 };
                 calls.push(rcall);
                 isConnected = false;
+                sockfd = -1;
                 return;  //finies thread              
             }
             

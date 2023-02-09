@@ -10,14 +10,14 @@ struct RpcCall {
 };
 
 uint16_t readPort(std::string & str);
-void SendRPC(int sockfd,std::string call,DataContainer & args);
-void SendRPC(int sockfd,std::string call);
-void SendRPC(int sockfd,std::string call,std::string arg);
-void SendRPC(int sockfd,std::string call,Vect2 arg);
-void SendRPC(int sockfd,std::string call,int arg);
-void SendRPC(int sockfd,std::string call,int arg,Vect2 arg2);
+void SendRPC(std::string call,DataContainer & args);
+void SendRPC(std::string call);
+void SendRPC(std::string call,std::string arg);
+void SendRPC(std::string call,Vect2 arg);
+void SendRPC(std::string call,int arg);
+void SendRPC(std::string call,int arg,Vect2 arg2);
 void ReciveThread(int fd,SafeQueue<RpcCall> & calls);
-
+void WaitUntilRedy();
 
 void SelfTerminalConotrol(bool enable);
 void MoveCursor(Vect2 vect);

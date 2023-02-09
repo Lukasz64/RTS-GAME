@@ -242,19 +242,129 @@ struct Map {
    }
 };
 
+
+const int maxMessages = 5;
 struct ClientGame
 {
-   /* data */
+    Map map;
+    Vect2 t; 
+    int units = 50; 
+   
+    string messages[maxMessages];
+    int start = 0;
+    string modes[5] = {
+      "--no actions--\n",
+      "Select base(enter)\n",
+      "Explore 50 units (enter)\n",
+      "Upgrade Farm(F)\t\tUpgrade Mine(M)\nUpgrade Sawmill(S)\tUpgrade Village(V)\nget/back %d units(G/B)\n",
+      "Attack %d units(enter)\n"
+    };  
+
+   void ChunkSelectorUptade(Keys code){
+        if (code == Up)t.Y--;
+        else if (code == Down)t.Y++;
+        else if (code == Left)t.X--;
+        else if (code == Right)t.X++;
+
+        if (t.Y < 0)t.Y = WorldSize - 1;
+        if (t.Y >= WorldSize)t.Y = 0;
+        if (t.X < 0)t.X = WorldSize - 1;
+        if (t.X >= WorldSize)t.X = 0;
+   }
+
+   void OnKey(Keys code){
+        ChunkSelectorUptade(code);
+
+        if (code == Space)
+            SendRPC("start");
+
+        if (code == Tylda)
+        {
+            SelfTerminalConotrol(false);
+            exit(1);
+        }
+        int mode = map.mode(t);
+        if (mode == 1)
+        { // select
+            if (code == Enter)
+               SendRPC("base", t);
+        }
+        else if (mode == 2 || mode == 4)
+        { // (explore/attack)
+            if (code == Enter)
+               SendRPC("send", units, t);
+        }
+        else if (mode == 3)
+        { // devolop
+            if (code == 'f')
+               SendRPC("upgrade", 0, t);
+            else if (code == 'm')
+               SendRPC("upgrade", 1, t);
+            else if (code == 's')
+               SendRPC("upgrade", 2, t);
+            else if (code == 'v')
+               SendRPC("upgrade", 3, t);
+            else if (code == 'g')
+               SendRPC("send", units, t);
+            else if (code == 'b')
+               SendRPC("back", units, t);
+        }
+
+        if (code == '=')
+            units += 5;
+        if (code == '-' && units > 0)
+            units -= 5;
+   }
+   
+   void ProcessClientEvent(RpcCall & call){
+      if(call.rpcName == "KeyPress"){
+            Keys code = (Keys)call.container.GetInt(0);
+            OnKey(code);
+      }   
+      else if(call.rpcName == "MapSync")
+                  map.ReadMap(call.container);   
+      else if(call.rpcName == "Chunk")
+                  map.RefresChunk(call.container);            
+      else if(call.rpcName == "msg"){
+         string m = call.container.GetString(0);
+         messages[start++] = m;
+         if(start >= maxMessages)start = 0;
+      }
+   }
+   
+   void DrawGUI(){
+      system("clear");
+      int mode = map.mode(t);
+
+      map.DrawResources();
+      cout << endl;
+      cout << t.ToString() << endl;
+
+      map.DrawMap(t);
+      printf("Exit(~)\t\t\tUints %d(+/-)\n", units);
+      
+
+      printf(modes[mode].c_str(), units, units);
+
+      if (mode == 3)
+         map.chunks[t.X][t.Y].DrawInfo();
+
+      MoveCursor(Vect2(0, 20));
+      for (size_t i = 0; i < maxMessages; i++)
+      {
+         int realIdx = (i + start) % maxMessages;
+         if (messages[realIdx] != "")
+               cout << messages[realIdx] << endl;
+      }
+   }
 };
 
-
-
-void GameMenu(int sockfd,SafeQueue<RpcCall> & calls){
-    vector<string> servers;
-    SendRPC(sockfd,"list");// request server to 
-    int cnt = INT32_MAX;
+void ReadServerList(SafeQueue<RpcCall> & calls,vector<string>& servers){
+   servers.clear();
+   SendRPC("list");// request server to 
+   int cnt = INT32_MAX;
     
-    while(cnt){
+   while(cnt){
         if(!calls.isEmpty()){
             RpcCall call = calls.pop();
             if(call.rpcName == "Rooms.Cnt"){
@@ -265,83 +375,81 @@ void GameMenu(int sockfd,SafeQueue<RpcCall> & calls){
                 servers.push_back(call.container.GetString(0));
             }
         }
-    }
-    system("clear");
-    for (size_t i = 0; i < servers.size(); i++)
-    {
-        cout << colorize(GREEN) << "(" << i << ")" << colorize(WHITE) << servers[i] << endl;
-    }
-    cout << "Commands" << endl << "join <id>"<<endl << "new <room name>"<< endl;
-    while(1){
-        string command;
-        cin >> command;
-        if(command == "join"){
-            int id =0;
-            cin >> id;
-            if(id < 0 || id >= servers.size()){
-                ReportWarning("Wrong id");
-                continue;
-            }
-            SendRPC(sockfd,"join",(int)id);
-             while(1){
-                if(!calls.isEmpty()){
-                    RpcCall call = calls.pop();
-                    if(call.rpcName == "STATUS"){
-                        string stat = call.container.GetString(0);
-                        if(stat == "OK") {
-                            ReportInfo("Joinig room:"+servers[id]);
-                            return;
-                        }if(stat == "MapSync"){// this bcouse of hierachy of objects
-                        
-                        }else {
-                            ReportWarning("Fail to join room");
-                            break;
-                        }
-                    } else {
-                        ReportError("Critical error unexpeted answer from server");
-                        break;
-                    }
+        usleep(1000);
+   }
+}
+int TryJoinRoom(SafeQueue<RpcCall> & calls,int id,vector<string>& servers){
+   SendRPC("join", (int)id);
+   while (isConnected){      
+        if (!calls.isEmpty()){
+            RpcCall call = calls.pop();
+            if (call.rpcName == "STATUS"){
+                string stat = call.container.GetString(0);
+                if (stat == "OK"){
+                   ReportInfo("Joinig room:" + servers[id]);
+                   return 1;
+                } else {
+                   ReportWarning("Fail to join room");
+                   return -1;
                 }
-                usleep(1000/5);
-             }
-
-
-        } else if(command == "new") {
-            cin >> command;
-            //if coonectionton not lost this is isntat connection to room(no way to fail)
-            SendRPC(sockfd,"add",command);
-            return;
+            } else if(call.rpcName == "TCP-CONN-LOST"){    
+            }else {
+                ReportError("Critical error unexpeted answer from server");
+                return -1;
+            }
         }
-    }
+        usleep(1000);
+  }
+  return -2;
+}
 
+void GameMenu(SafeQueue<RpcCall> & calls){
+    vector<string> servers;
+    
+    while (isConnected){   
+      
+      ReadServerList(calls,servers);
+      //print list
+      system("clear");
+      for (size_t i = 0; i < servers.size(); i++)
+         cout << colorize(GREEN) << "(" << i << ")" << colorize(WHITE) << servers[i] << endl;
+
+      cout << "Commands" << endl << "join <id>"<<endl << "new <room name>"<< endl<< "ref"<< endl;
+
+      //
+      while(isConnected){
+         string command;
+         cin >> command;
+         if(command == "join"){
+               int id =0;
+               cin >> id;
+               if(id < 0 || id >= servers.size()){
+                  ReportWarning("Wrong id");
+                  continue;
+               }
+               int res = TryJoinRoom(calls,id,servers);
+               if(res == 1 || res == -2) return;
+         } else if(command == "new") {
+               cin >> command;
+               //if coonectionton not lost this is isntat connection to room(no way to fail)
+               SendRPC("add",command);
+               return;
+         } else if(command == "ref"){
+            break;
+         }else {
+            ReportError("Unkow command: " + command);
+         }
+      }
+   }
 }
 
 int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
     
-    SendRPC(sockfd,"register",playernick);
-    GameMenu(sockfd,calls);
+    SendRPC("register",playernick);
+    GameMenu(calls);
 
-    Map map;
-    Vect2 t(0,0); 
-    int units = 50; 
-
-    const int maxMessages = 5;
-    string messages[maxMessages];
-    int start = 0;
-    
     SelfTerminalConotrol(true); 
-
-    //select
-   //explore
-   //devolop
-   //attack
-   //"Farm","Mine","Sawmill","Willage"
-    string modes[5] = {
-      "--no actions--\n",
-      "Select base(enter)\n",
-      "Explore 50 units (enter)\n",
-      "Upgrade Farm(U)\t\tUpgrade Mine(M)\nUpgrade Sawmill(S)\tUpgrade Willage(W)\nget/back %d units(G/B)\n",
-      "Attack %d units(enter)\n"};
+    ClientGame client;
 
    //keys reciving thread
    thread keyboradThtread = thread(
@@ -362,7 +470,7 @@ int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
    );
 
     while(isConnected){           
-            int mode = map.mode(t);
+            //int mode = map.mode(t);
             bool needUpdate = false;
 
             while(!calls.isEmpty()){
@@ -373,91 +481,12 @@ int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
                   keyboradThtread.join();
                   return -1;
                }             
-               if(call.rpcName == "MapSync"){
-                  map.ReadMap(call.container);
-               }
-               if(call.rpcName == "Chunk"){
-                  map.RefresChunk(call.container);
-               }
-               if(call.rpcName == "msg"){
-                   string m = call.container.GetString(0);
-                   messages[start++] = m;
-                   if(start >= maxMessages)start = 0;
-               }
                needUpdate = true;
-                                   
-               if(call.rpcName == "KeyPress"){
-                  Keys code = (Keys)call.container.GetInt(0);
-                  
-                  if(code == Up)   t.Y--;
-                  else if(code == Down) t.Y++;
-                  else if(code == Left) t.X--;
-                  else if(code == Right)t.X++;
-
-                  if(t.Y < 0) t.Y = WorldSize - 1;
-                  if(t.Y >= WorldSize) t.Y = 0;
-
-                  if(t.X < 0) t.X = WorldSize - 1;
-                  if(t.X >= WorldSize) t.X = 0;
-
-                  if(code == Space){
-                     SendRPC(sockfd,"start");
-                  }
-
-                  if(code == Tylda){
-                     SelfTerminalConotrol(false);
-                     exit(1);
-                  }
-                  mode = map.mode(t) ;
-                  if(mode == 1){//select
-                        if(code == Enter){
-                            SendRPC(sockfd,"base",t);
-                        }
-                  } else if(mode == 2 || mode == 4){// (explore/attack)
-                        if(code == Enter){
-                            SendRPC(sockfd,"send",units,t);   
-                        }
-                  } else if(mode == 3){//devolop
-                        if(code == 'u')SendRPC(sockfd,"upgrade",0,t); 
-                        else if(code == 'm')SendRPC(sockfd,"upgrade",1,t); 
-                        else if(code == 's')SendRPC(sockfd,"upgrade",2,t); 
-                        else if(code == 'w')SendRPC(sockfd,"upgrade",3,t);   
-                        else if(code == 'g')SendRPC(sockfd,"send",units,t);
-                        else if(code == 'b')SendRPC(sockfd,"back",units,t);   
-                  } 
-
-                  if(code == '=') units+=5;
-                  if(code == '-' && units > 0) units-=5;
-
-
-                  //cout << code;
-               }
-                     
-            //cout << "ee" << endl;
-
+               client.ProcessClientEvent(call);
             }
             if(needUpdate){
-               system("clear");
-               map.DrawResources(); cout << endl;
-               cout << t.ToString()<< endl;
-                           
-         
-               map.DrawMap(t);
-               printf("Exit(~)\t\t\tUints %d(+/-)\n",units);
-               printf(modes[mode].c_str(),units,units);
-               
-               if(mode == 3)
-                  map.chunks[t.X][t.Y].DrawInfo();  
-
-               MoveCursor(Vect2(0,20));
-               for (size_t i = 0; i < maxMessages; i++)
-               {
-                  int realIdx = (i+start)%maxMessages;
-                  if(messages[realIdx] != "")
-                     cout << messages[realIdx] << endl;
-               }
+               client.DrawGUI();
             }
-
             usleep(1000*1000/10);//10 frames
     }
     keyboradThtread.join();
