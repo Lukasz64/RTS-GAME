@@ -74,6 +74,8 @@ int main()
          ReportInfo("Try reconnect ...");
          sleep(5);
          continue;
+      } else {
+         ReportInfo("Connecting ...");
       }
       
       //simple clear queue
