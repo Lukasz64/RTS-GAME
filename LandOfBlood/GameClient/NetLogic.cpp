@@ -82,10 +82,19 @@ void SendRPC(string call,int arg,Vect2 arg2){
     args.PushVariable(arg2);
     SendRPC(call,args);
 }
-void WaitUntilRedy()
+bool WaitUntilRedy()
 {
-    while (!isConnected)
-        usleep(5000);
+    int timeOut = 1000 * 6;
+    while (!isConnected){
+        timeOut--;
+        if(timeOut <= 0){
+            ReportError("Connection lost(Time out)");
+            return false;
+        }
+
+        usleep(1000);
+    }
+     return true;
 }
 
 

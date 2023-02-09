@@ -116,9 +116,9 @@ class TerrainChunk
 
         Construction Constructions[4] = {
             Construction(1,Resource(100,200,0,0),Resource(0,0,0,400),5,2,10),//farm
-            Construction(2,Resource(500,100,500,1000),Resource(0,10,5,0),50,10,100),//mine
+            Construction(2,Resource(500,100,500,1000),Resource(0,10,5,0),50,10,25),//mine
             Construction(3,Resource(200,200,20,100),Resource(20,0,0,0),10,5,20),//sawmill
-            Construction(4,Resource(10000,5000,4000,10000),Resource(0,10,50,100),50,20,100)//willage
+            Construction(4,Resource(1000,500,400,1000),Resource(0,10,50,100),50,10,35)//village
         };
         bool ConstructionActive[4] = {false};
         bool ConstructionCanUprade[4] = {false};

@@ -67,7 +67,7 @@ struct ChunkInfo {
          return names[(int)TerrainType];
       }
       string getStructName(int x){
-         string names[4] = {"Farm","Mine","Sawmill","Willage"};
+         string names[4] = {"Farm","Mine","Sawmill","Village"};
          return names[x];
       }
       string getResourceName(int x){

@@ -478,3 +478,89 @@
 [2023-02-09.05:50:22 INFO]:connection(fd:7) closed
 [2023-02-09.05:50:24 INFO]:Remove client 8
 [2023-02-09.05:50:24 INFO]:connection(fd:8) closed
+[2023-02-09.15:32:06 INFO]:Server lounching...
+[2023-02-09.15:32:06 INFO]:Load settings ok
+[2023-02-09.15:32:06 INFO]:Iniitalize Server..
+[2023-02-09.15:32:06 INFO]:Lounch Server at 127.0.0.1:1333
+[2023-02-09.15:32:06 INFO]:Lunch Server Threads..
+[2023-02-09.15:32:06 INFO]:Done.
+[2023-02-09.15:33:11 INFO]:Server lounching...
+[2023-02-09.15:33:11 INFO]:Load settings ok
+[2023-02-09.15:33:11 INFO]:Iniitalize Server..
+[2023-02-09.15:33:11 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.15:33:11 INFO]:Lunch Server Threads..
+[2023-02-09.15:33:11 INFO]:Done.
+[2023-02-09.15:34:03 INFO]:new connection from:10.0.2.2:54030(fd:7)
+[2023-02-09.15:34:03 ERROR]:To lareg packet-exception
+[2023-02-09.15:34:03 ERROR]:To lareg packet-exception
+[2023-02-09.15:34:03 ERROR]:To lareg packet-exception
+[2023-02-09.15:34:03 ERROR]:To lareg packet-exception
+[2023-02-09.15:34:03 ERROR]:To lareg packet-exception
+[2023-02-09.15:34:03 ERROR]:To lareg packet-exception
+[2023-02-09.15:34:03 ERROR]:To lareg packet-exception
+[2023-02-09.15:36:17 INFO]:Remove client 7
+[2023-02-09.15:36:17 INFO]:connection(fd:7) closed
+[2023-02-09.15:53:26 INFO]:new connection from:10.0.2.15:60912(fd:7)
+[2023-02-09.15:53:26 INFO]:User luki join the lobby
+[2023-02-09.15:54:00 INFO]:Server lounching...
+[2023-02-09.15:54:00 INFO]:Load settings ok
+[2023-02-09.15:54:00 INFO]:Iniitalize Server..
+[2023-02-09.15:54:00 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.15:54:00 INFO]:Lunch Server Threads..
+[2023-02-09.15:54:00 INFO]:Done.
+[2023-02-09.15:54:03 INFO]:new connection from:10.0.2.15:43938(fd:7)
+[2023-02-09.15:54:03 INFO]:User luki join the lobby
+[2023-02-09.18:55:22 INFO]:Server lounching...
+[2023-02-09.18:55:22 INFO]:Load settings ok
+[2023-02-09.18:55:22 INFO]:Iniitalize Server..
+[2023-02-09.18:55:22 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.18:55:22 INFO]:Lunch Server Threads..
+[2023-02-09.18:55:22 INFO]:Done.
+[2023-02-09.18:57:55 INFO]:new connection from:10.0.2.2:61324(fd:7)
+[2023-02-09.18:57:55 INFO]:User Mati join the lobby
+[2023-02-09.19:00:01 INFO]:new connection from:10.0.2.15:48766(fd:8)
+[2023-02-09.19:00:01 INFO]:User Luki join the lobby
+[2023-02-09.20:02:00 INFO]:Server lounching...
+[2023-02-09.20:02:00 INFO]:Load settings ok
+[2023-02-09.20:02:00 INFO]:Iniitalize Server..
+[2023-02-09.20:02:00 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.20:02:00 INFO]:Lunch Server Threads..
+[2023-02-09.20:02:00 INFO]:Done.
+[2023-02-09.20:02:05 INFO]:new connection from:10.0.2.15:55468(fd:7)
+[2023-02-09.20:02:05 INFO]:User Luki join the lobby
+[2023-02-09.20:02:07 INFO]:new connection from:10.0.2.2:62981(fd:8)
+[2023-02-09.20:02:07 INFO]:User Mati join the lobby
+[2023-02-09.20:06:00 INFO]:Server lounching...
+[2023-02-09.20:06:00 INFO]:Load settings ok
+[2023-02-09.20:06:00 INFO]:Iniitalize Server..
+[2023-02-09.20:06:00 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.20:06:00 INFO]:Lunch Server Threads..
+[2023-02-09.20:06:00 INFO]:Done.
+[2023-02-09.20:06:03 INFO]:new connection from:10.0.2.15:41018(fd:7)
+[2023-02-09.20:06:03 INFO]:User Luki join the lobby
+[2023-02-09.20:06:12 INFO]:Remove client 7
+[2023-02-09.20:06:12 INFO]:connection(fd:7) closed
+[2023-02-09.20:06:21 INFO]:new connection from:10.0.2.15:33426(fd:7)
+[2023-02-09.20:06:21 INFO]:User luki join the lobby
+[2023-02-09.20:06:33 INFO]:new connection from:10.0.2.2:63196(fd:8)
+[2023-02-09.20:06:33 INFO]:User Mati join the lobby
+[2023-02-09.20:08:25 INFO]:Server lounching...
+[2023-02-09.20:08:25 INFO]:Load settings ok
+[2023-02-09.20:08:25 INFO]:Iniitalize Server..
+[2023-02-09.20:08:25 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.20:08:25 INFO]:Lunch Server Threads..
+[2023-02-09.20:08:25 INFO]:Done.
+[2023-02-09.20:08:29 INFO]:new connection from:10.0.2.15:54768(fd:7)
+[2023-02-09.20:08:29 INFO]:User luki join the lobby
+[2023-02-09.20:10:23 INFO]:new connection from:10.0.2.2:63256(fd:8)
+[2023-02-09.20:10:23 INFO]:User Mati join the lobby
+[2023-02-09.20:15:24 INFO]:Server lounching...
+[2023-02-09.20:15:24 INFO]:Load settings ok
+[2023-02-09.20:15:24 INFO]:Iniitalize Server..
+[2023-02-09.20:15:24 INFO]:Lounch Server at 10.0.2.15:1333
+[2023-02-09.20:15:24 INFO]:Lunch Server Threads..
+[2023-02-09.20:15:24 INFO]:Done.
+[2023-02-09.20:15:24 INFO]:new connection from:10.0.2.15:57870(fd:7)
+[2023-02-09.20:15:24 INFO]:User luki join the lobby
+[2023-02-09.20:17:06 INFO]:new connection from:10.0.2.2:63392(fd:8)
+[2023-02-09.20:17:06 INFO]:User Mati join the lobby

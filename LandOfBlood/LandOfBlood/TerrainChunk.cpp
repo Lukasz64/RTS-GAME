@@ -68,7 +68,7 @@ TerrainChunk::TerrainChunk(ChunkType type, Vect2 loc)
 
 void TerrainChunk::GenResoucesAsPlayerBase(Player* owner) {
     TerrainOwner = owner;
-    StcjonaryUnit = Unit(owner, 150);
+    StcjonaryUnit = Unit(owner, 200);
     NaturalRes = Resource(
         1000,       //wood 
         1000,       //stone 

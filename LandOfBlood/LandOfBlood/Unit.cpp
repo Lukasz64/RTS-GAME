@@ -90,7 +90,7 @@ void Unit::GoNewLocation(GameWorld& world, Vect2 newLoc) {
                             newChunk->StcjonaryUnit.Substract(random(1, count / 2));
                         }
                         else
-                            if (random(0, 50) == 27) {
+                            if (random(0, 15) == 7) {
                                 Resource res(random(100, 5000), random(100, 5000), random(0, 50), random(100, 1000));
                                 world.ReportEvent("Units successfully explored terrain" + newChunk->Loc.ToString() + " and find loot" + res.ToString(), owner);
                                 owner->getPlayerResources()->addResource(res);

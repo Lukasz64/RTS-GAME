@@ -17,7 +17,7 @@ void SendRPC(std::string call,Vect2 arg);
 void SendRPC(std::string call,int arg);
 void SendRPC(std::string call,int arg,Vect2 arg2);
 void ReciveThread(int fd,SafeQueue<RpcCall> & calls);
-void WaitUntilRedy();
+bool WaitUntilRedy();
 
 void SelfTerminalConotrol(bool enable);
 void MoveCursor(Vect2 vect);
