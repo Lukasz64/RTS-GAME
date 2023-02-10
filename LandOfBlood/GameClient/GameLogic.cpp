@@ -190,7 +190,7 @@ struct Map {
     chunks[vect.X][vect.Y].Read(cont);
     //cout <<"Chunk udpate !"<< vect.ToString()<<"++++++"<<chunks[vect.X][vect.Y].Unit << endl;
     //must be fest
-    if(chunks[vect.X][vect.Y].Owner == ownerID && mode(Vect2(0,0)) == 1){
+    if(ownerID != -1 && chunks[vect.X][vect.Y].Owner == ownerID && mode(Vect2(0,0)) == 1){
         plBase = vect;
     }
    }
@@ -423,7 +423,7 @@ void GameMenu(SafeQueue<RpcCall> & calls){
          if(command == "join"){
                int id =0;
                cin >> id;
-               if(id < 0 || id >= servers.size()){
+               if(id < 0 || (size_t)id >= servers.size()){
                   ReportWarning("Wrong id");
                   continue;
                }
@@ -433,7 +433,7 @@ void GameMenu(SafeQueue<RpcCall> & calls){
                cin >> command;
                //if coonectionton not lost this is isntat connection to room(no way to fail)
                SendRPC("add",command);
-               return;
+               break;
          } else if(command == "ref"){
             break;
          }else {

@@ -278,7 +278,7 @@ void NetCore::ProvessEvent( RpcCall & event ){
     if(event.sender->roomID == InLobby){
         if(event.rpcName == "list"){
             event.sender->SendRPC("Rooms.Cnt",rooms.size());
-            for (int i = 0; i < rooms.size(); i++)
+            for (size_t i = 0; i < rooms.size(); i++)
             {
                DataContainer container;
                //container.PushVariable(i);
@@ -294,15 +294,15 @@ void NetCore::ProvessEvent( RpcCall & event ){
             string roomName = event.container.GetString(0);   
             if(roomName == "")
                 return;
-            GameRoom room(roomName);
-            room.JoinPlayer(event.sender->cilentName,event.sender);
-            event.sender->roomID = rooms.size();
+            GameRoom room(roomName);        
+            //room.JoinPlayer(event.sender->cilentName,event.sender);
+            //event.sender->roomID = rooms.size();
             rooms.push_back(room);
             return;
         }
         if(event.rpcName == "join"){
             int roomID = event.container.GetInt(0);   
-            if(roomID >= rooms.size())
+            if((size_t)roomID >= rooms.size())
                 return;
         
             if(rooms[roomID].JoinPlayer(event.sender->cilentName,event.sender)){

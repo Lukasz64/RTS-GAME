@@ -20,25 +20,25 @@ DataContainer::DataContainer(vector<uint8_t>& data) {
     DeSerialize();
 }
 DataContainer::DataContainer(uint8_t * buffer,int size){
-    for (size_t i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
         binaryContainer.push_back(buffer[i]);
     DeSerialize();
 }
 
 
 void DataContainer::writeBinary(vector<uint8_t>& outBuffer, void* data, int lenght) {
-    for (size_t i = 0; i < lenght; i++)
+    for (int i = 0; i < lenght; i++)
         outBuffer.push_back(((uint8_t*)data)[i]);
 }
 void DataContainer::readBinary(vector<uint8_t>& inBuffer, int startIndex, void* data, int lenght) {
     #if CONTINER_MODE == SAFE
-        if((startIndex+lenght) > inBuffer.size()){
+        if(((size_t)(startIndex+lenght)) > inBuffer.size()){
             ReportError("Container corrutpion error, index-out-of-range(readBinary)");
             return;
         }
     #endif
     
-    for (size_t i = 0; i < lenght; i++)
+    for (int i = 0; i < lenght; i++)
         ((uint8_t*)data)[i] = inBuffer[startIndex + i];
 }
 void DataContainer::addData(ContainerType type, void* data, int lenght) {
@@ -68,7 +68,7 @@ void DataContainer::PushVariable(DataContainer& var) {
     addData(CONTAINER_, &data[0], data.size());
 }
 bool DataContainer::checkIndex(string mothod, int index) {
-    if (index >= recordContainer.size()) {
+    if ((size_t)index >= recordContainer.size()) {
         ReportError("DataContainer::" + mothod + " -> index out of avelivable");
         return false;
     }
@@ -179,7 +179,7 @@ void DataContainer::DeSerialize() {
     ContainerRecord record;
     //load record count
     readBinary(binaryContainer, 0, &count, sizeof(count));
-    for (size_t i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
         readBinary(binaryContainer, sizeof(count) + (sizeof(record) * i), &record, sizeof(record));
         recordContainer.push_back(record);
@@ -188,7 +188,7 @@ void DataContainer::DeSerialize() {
     int binarIdx = sizeof(count) + (sizeof(record) * count);
     
     #if CONTINER_MODE == SAFE
-        if(binarIdx >= binaryContainer.size()){
+        if((size_t)binarIdx >= binaryContainer.size()){
             ReportError("Container corrutpion error, index-out-of-range(DeSerialize)");
             return;
         }

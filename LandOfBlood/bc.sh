@@ -8,7 +8,7 @@ echo "---------------Build---------------"
 # different libc for threads (i.e. -lc_r), (c) -thread or -threads or other, 
 # instead of or in addition to -lpthread.
 
-g++ GameClient/*.cpp GameClient/*.h GameClient/LIBS/*.cpp GameClient/LIBS/*.h  -o GameClient/BIN/GameClient.lin -pthread
+g++ GameClient/*.cpp GameClient/*.h GameClient/LIBS/*.cpp GameClient/LIBS/*.h  -o GameClient/BIN/GameClient.lin -pthread -Wall
 #-save-temps
 echo "----------------Done---------------"
 ./GameClient/BIN/GameClient.lin
