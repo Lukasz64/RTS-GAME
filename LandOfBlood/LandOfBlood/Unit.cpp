@@ -4,6 +4,7 @@
 #include <random>
 #include <ctime>
 #include <list>
+#include <bits/stdc++.h>
 
 #include "GameWorld.h"
 #include "Utils.h"
@@ -38,6 +39,7 @@ Unit::Unit(Player* own, int cnt)
     owner = own;
     count = cnt;
     currentLoc = own->getBaseLoc();
+    id = this;
 }
 bool Unit::isOwner(Player* pl) {
     return (owner == pl);
@@ -90,7 +92,7 @@ void Unit::GoNewLocation(GameWorld& world, Vect2 newLoc) {
                             newChunk->StcjonaryUnit.Substract(random(1, count / 2));
                         }
                         else
-                            if (random(0, 15) == 7) {
+                            if (random(0, 10) == 7) {
                                 Resource res(random(100, 5000), random(100, 5000), random(0, 50), random(100, 1000));
                                 world.ReportEvent("Units successfully explored terrain" + newChunk->Loc.ToString() + " and find loot" + res.ToString(), owner);
                                 owner->getPlayerResources()->addResource(res);
@@ -199,6 +201,14 @@ void Unit::ProcessUints(Vect2 terrLoc, GameWorld& world) {
         //cout << colorize(RED) << "[" << terrLoc.ToString() << "]" << n.owner->nick << n.currentLoc.ToString() << endl;
         n.ProcessUnit(world);
     }
+    
+    /*auto t = world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits;
+    std::list<Unit>::iterator it;
+
+    for (it = t.begin();it != t.end(); it++)
+    {
+        it->ProcessUnit(world);
+    }*/
 }
 void Unit::UnlockUpadte(Vect2 terrLoc, GameWorld& world) {
     list<Unit> units = world.getChunk(terrLoc.X, terrLoc.Y).MovingUnits;

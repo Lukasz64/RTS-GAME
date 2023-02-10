@@ -329,14 +329,14 @@ void NetCore::MainThread(){
             ProvessEvent(proccsedEvent);           
         }
         t++;
-        if(t >= (5*60)){
+        if(t >= (2*60)){
             t = 0;
-            list<int> toDelete;
+            //list<int> toDelete;
             for (size_t i = 0; i < rooms.size(); i++)
             {
                 rooms[i].GameTick();
-                if(rooms[i].GetRoomState() == false) 
-                    toDelete.push_back(i);
+                //if(rooms[i].GetRoomState() == false) 
+                //    toDelete.push_back(i);
             }
             /*cout << colorize(RED) << "Deleted:" << toDelete.size() << " rooms" << endl;
             //delete unused rooms
@@ -504,12 +504,12 @@ void GameRoom::ReportEvent(std::string message, Player* pl){
 
     
     if (pl != nullptr) {
-        cout << colorize(YELLOW) << "To " << pl->nick << " event: " << message<< colorize(NC) << endl;
+        //cout << colorize(YELLOW) << "To " << pl->nick << " event: " << message<< colorize(NC) << endl;
          Client * cl = (Client *)pl->clientIstnace;
          cl->SendRPC("msg",(string)(colorize(YELLOW) + message));
     }   
     else {
-        cout << colorize(GREEN) << "To all event: " << message << colorize(NC) << endl;
+        //cout << colorize(GREEN) << "To all event: " << message << colorize(NC) << endl;
         for (size_t i = 0; i < MaxPlayers; i++)
         {
             Player * pl = getPlayer(i);

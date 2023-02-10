@@ -33,6 +33,7 @@ void InitLogs(string fileName){
 
 
 int random(int min, int max) {
+    if(min > max) return 0;
     return min + rand() / (RAND_MAX / (max - min + 1) + 1);
 }
 

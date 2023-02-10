@@ -82,9 +82,9 @@ using namespace std;
 
     //
     if(ConstrID == 4){
-        if(random(0,30) == 15){
+        if(random(0,8) == 1){
             //this is specjal type this is willge
-            Unit u(chunk.TerrainOwner,random(0,prof.getResource((ResourceType)ConstrLvl)));
+            Unit u(chunk.TerrainOwner,random(1,prof.getResource((ResourceType)ConstrLvl)));
             chunk.StcjonaryUnit.Add(u);
         }
     } 

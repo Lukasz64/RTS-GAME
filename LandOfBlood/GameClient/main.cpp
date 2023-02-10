@@ -43,11 +43,10 @@ int InitConnetion(){
     if(inet_pton(AF_INET, settings["adress"].c_str(), &serv_addr.sin_addr) <= 0)
        ReportError("Fail to read given ip adress:" +  settings["adress"],true);  
 
-   if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0){
+    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0 ){
          ReportError("Fail to connect to " + settings["adress"] + ":" + settings["port"]); 
          return -1;
     }
-
     return sockfd;
 }
 

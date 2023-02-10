@@ -96,8 +96,10 @@ void TerrainChunk::TerrainTick(){
     //additonal security chcek(game integierity)
     if (TerrainOwner->IsPlayerBase(*this) == false) {
         //process all structres
-        int units = StcjonaryUnit.getCount();
+        //int units = StcjonaryUnit.getCount();
         for (int i = 0; i < 4; i++){
+            int units = StcjonaryUnit.getCount();
+                
             ConstructionActive[i] = Constructions[i].Tick(*this, units);
             ConstructionWorkerCost[i] = Constructions[i].getCurrentNededUnits();
 

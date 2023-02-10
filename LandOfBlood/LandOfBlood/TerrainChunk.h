@@ -20,6 +20,7 @@ class Unit
     Player* owner = nullptr;
     int     count = 0;
     int     delay = 0;//delay wtih reachnig next desytnation
+    void *  id;
 
     Vect2   currentLoc;
     Vect2   destynationLoc;
@@ -40,8 +41,8 @@ public:
 
 
     Unit(Player* owner, int count);
-    Unit(Vect2 currentL) { currentLoc = currentL; };
-    Unit() {};
+    Unit(Vect2 currentL) { currentLoc = currentL;id = this; };
+    Unit() {id = this;};
     ~Unit() {};
     int getCount();
 
@@ -60,7 +61,9 @@ public:
         Vect2 dest2 = rhs.destynationLoc;
 
 
-        return (lhs.owner == rhs.owner && lhs.count == rhs.count && curr2.CompareValues(curr) && dest2.CompareValues(dest));
+        return (lhs.owner == rhs.owner && lhs.count == rhs.count && curr2.CompareValues(curr) && dest2.CompareValues(dest)) && (lhs.id == rhs.id);
+        //return (lhs.id == rhs.id);
+        //return (&lhs == &rhs);
     } ;
     
 private:

@@ -446,7 +446,10 @@ void GameMenu(SafeQueue<RpcCall> & calls){
 int GameMain(string playernick,int sockfd,SafeQueue<RpcCall> & calls){
     
     SendRPC("register",playernick);
+    
+
     GameMenu(calls);
+    sleep(1);
 
     SelfTerminalConotrol(true); 
     ClientGame client;
